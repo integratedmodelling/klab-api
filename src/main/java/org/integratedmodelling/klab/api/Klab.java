@@ -3,20 +3,27 @@ package org.integratedmodelling.klab.api;
 import java.io.File;
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.services.IConfigurationService;
+
 /**
- * Main k.LAB client 
+ * Main k.LAB client
  * 
  * @author Ferd
  *
  */
 public class Klab {
 
+	String token;
+	
 	private Klab() {
 		// TODO authenticate
 	}
 
 	/**
-	 * Use the certificate from the default locations.
+	 * Authenticate with the hub in a certificate and open a session with the engine
+	 * passed. Use the certificate from the default location ($HOME/.klab/im.cert or
+	 * the value of the {@link IConfigurationService#KLAB_ENGINE_CERTIFICATE} system
+	 * property.
 	 * 
 	 * @param engineUrl
 	 * @return
@@ -42,7 +49,7 @@ public class Klab {
 	 * 
 	 * @return
 	 */
-	public Future<Estimate> estimate() {
+	public Future<Estimate> estimate(Object... arguments) {
 		return null;
 	}
 
