@@ -3,6 +3,7 @@ package org.integratedmodelling.klab.api;
 import java.io.File;
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.model.Observation;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
 
 /**
@@ -53,13 +54,13 @@ public class Klab {
 		return null;
 	}
 
-	/**
-	 * TEMPORARY needs to be the last step of a specification created by the
-	 * singleton.
-	 * 
-	 * @return
-	 */
-	public Future<Context> submit(Estimate estimate) {
-		return null;
-	}
+    /**
+     * Call with a concept and geometry to create an observation or with an estimate to submit the
+     * estimate.
+     * 
+     * @return
+     */
+    public Future<Observation> submit(Object... arguments) {
+        return null;
+    }
 }
