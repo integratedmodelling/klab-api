@@ -17,6 +17,19 @@
 			<artifactId>org.integratedmodelling.klab.api</artifactId>
 			<version>${klab.version}</version>
 		</dependency>
+		<!-- Unirest for REST interactions -->
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-java</artifactId>
+			<version>3.11.09</version>
+			<classifier>standalone</classifier>
+		</dependency>
+		<dependency>
+			<groupId>com.konghq</groupId>
+			<artifactId>unirest-objectmapper-jackson</artifactId>
+			<version>3.11.09</version>
+			<classifier>standalone</classifier>
+		</dependency>
 	</dependencies>
-	
+
 </project>

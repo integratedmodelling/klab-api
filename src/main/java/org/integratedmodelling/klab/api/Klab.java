@@ -5,19 +5,28 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.model.Observation;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
+import org.integratedmodelling.klab.api.utils.Engine;
+import org.integratedmodelling.klab.rest.EngineAuthenticationResponse;
 
 /**
- * Main k.LAB client
+ * Main k.LAB client. Instantiate one with your certificate/engine URL (or
+ * defaults) to start using k.LAB within a Java application.
+ * 
+ * 
  * 
  * @author Ferd
  *
  */
 public class Klab {
 
-	String token;
-	
-	private Klab() {
-		// TODO authenticate
+	Engine engine;
+	EngineAuthenticationResponse authenticationData;
+
+	private long POLLING_INTERVAL_MS = 2000l;
+
+	private Klab(String engineUrl, File certificate) {
+		this.engine = new Engine(engineUrl);
+		this.authenticationData = this.engine.authenticate(certificate);
 	}
 
 	/**
@@ -30,7 +39,15 @@ public class Klab {
 	 * @return
 	 */
 	public static Klab create(String engineUrl) {
-		return null;
+		return new Klab(engineUrl, getDefaultCertificateFile());
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private static File getDefaultCertificateFile() {
+		return new File(System.getProperty("user.home") + File.separator + ".klab" + File.separator + "klab.cert");
 	}
 
 	/**
@@ -41,9 +58,13 @@ public class Klab {
 	 * @return
 	 */
 	public static Klab create(String engineUrl, File certificate) {
-		return null;
+		return new Klab(engineUrl, certificate);
 	}
 
+	public boolean isOnline() {
+		return engine.isOnline();
+	}
+	
 	/**
 	 * TEMPORARY needs to be the last step of a specification created by the
 	 * singleton.
@@ -54,13 +75,13 @@ public class Klab {
 		return null;
 	}
 
-    /**
-     * Call with a concept and geometry to create an observation or with an estimate to submit the
-     * estimate.
-     * 
-     * @return
-     */
-    public Future<Observation> submit(Object... arguments) {
-        return null;
-    }
+	/**
+	 * Call with a concept and geometry to create an observation (accepting all
+	 * costs) or with an estimate to submit the estimate.
+	 * 
+	 * @return
+	 */
+	public Future<Observation> submit(Object... arguments) {
+		return null;
+	}
 }

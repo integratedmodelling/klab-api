@@ -2,7 +2,6 @@ package org.integratedmodelling.klab.api.test;
 
 import java.util.concurrent.Future;
 
-import org.integratedmodelling.klab.api.Context;
 import org.integratedmodelling.klab.api.Estimate;
 import org.integratedmodelling.klab.api.Klab;
 import org.junit.Test;

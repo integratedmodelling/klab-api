@@ -8,6 +8,8 @@ import org.integratedmodelling.klab.common.SemanticType;
 
 public class Context extends Observation {
 
+	private String contextId;
+	
     /**
      * Call with a concept and geometry to create an observation or with an estimate to submit the
      * estimate. Will also include any further observation hierarchy created by calling the with()
