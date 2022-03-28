@@ -20,13 +20,18 @@ import org.integratedmodelling.klab.rest.EngineAuthenticationResponse;
 public class Klab {
 
 	Engine engine;
-	EngineAuthenticationResponse authenticationData;
+	String session;
 
 	private long POLLING_INTERVAL_MS = 2000l;
 
-	private Klab(String engineUrl, File certificate) {
+	private Klab(String engineUrl) {
 		this.engine = new Engine(engineUrl);
-		this.authenticationData = this.engine.authenticate(certificate);
+		this.session = this.engine.authenticate();
+	}
+
+	private Klab(String engineUrl, String username, String password) {
+		this.engine = new Engine(engineUrl);
+		this.session = this.engine.authenticate(username, password);
 	}
 
 	/**
@@ -38,33 +43,26 @@ public class Klab {
 	 * @param engineUrl
 	 * @return
 	 */
-	public static Klab create(String engineUrl) {
-		return new Klab(engineUrl, getDefaultCertificateFile());
+	public static Klab create(String localEngineUrl, String username, String password) {
+		return new Klab(localEngineUrl, username, password);
 	}
 
 	/**
-	 * 
-	 * @return
-	 */
-	private static File getDefaultCertificateFile() {
-		return new File(System.getProperty("user.home") + File.separator + ".klab" + File.separator + "klab.cert");
-	}
-
-	/**
-	 * Pass a certificate file explicitly.
+	 * Authenticate with a local engine in a certificate and open a session with the
+	 * engine passed. Won't require authentication but only works if the engine is
+	 * local and authenticated.
 	 * 
 	 * @param engineUrl
-	 * @param certificate
 	 * @return
 	 */
-	public static Klab create(String engineUrl, File certificate) {
-		return new Klab(engineUrl, certificate);
+	public static Klab create(String localEngineUrl) {
+		return new Klab(localEngineUrl);
 	}
 
 	public boolean isOnline() {
 		return engine.isOnline();
 	}
-	
+
 	/**
 	 * TEMPORARY needs to be the last step of a specification created by the
 	 * singleton.

@@ -10,7 +10,7 @@ public class SimpleObservation {
 
 	@Test
 	public void test() {
-		Klab klab = Klab.create("http://127.0.0.1:8283/modeler");
+		Klab klab = Klab.create("https://integratedmodelling.org/modeler", "username", "password");
 		Future<Estimate> estimate = klab.estimate();
 //		if (estimate.get().getCost() < 100000) {
 //			Future<Context> context = klab.submit(estimate.get());
