@@ -6,6 +6,7 @@ import org.integratedmodelling.klab.utils.Pair;
 public class Estimate {
 	
 	String estimateId;
+	boolean accepted;
 	
 	public Pair<Double, ICurrency> getCost() {
 		return null;

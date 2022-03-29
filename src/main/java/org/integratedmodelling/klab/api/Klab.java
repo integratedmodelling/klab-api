@@ -1,12 +1,14 @@
 package org.integratedmodelling.klab.api;
 
-import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
-import org.integratedmodelling.klab.api.model.Observation;
+import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
 import org.integratedmodelling.klab.api.utils.Engine;
-import org.integratedmodelling.klab.rest.EngineAuthenticationResponse;
+import org.integratedmodelling.klab.common.SemanticType;
+import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
+import org.integratedmodelling.klab.rest.ContextRequest;
 
 /**
  * Main k.LAB client. Instantiate one with your certificate/engine URL (or
@@ -34,6 +36,13 @@ public class Klab {
 		this.session = this.engine.authenticate(username, password);
 	}
 
+	public void disconnect() {
+		if (this.engine.isOnline()) {
+			this.engine.deauthenticate();
+		}
+
+	}
+
 	/**
 	 * Authenticate with the hub in a certificate and open a session with the engine
 	 * passed. Use the certificate from the default location ($HOME/.klab/im.cert or
@@ -59,6 +68,15 @@ public class Klab {
 		return new Klab(localEngineUrl);
 	}
 
+	/**
+	 * Connect to local server with the default URL.
+	 * 
+	 * @return
+	 */
+	public static Klab create() {
+		return new Klab("http://127.0.0.1:8283/modeler");
+	}
+
 	public boolean isOnline() {
 		return engine.isOnline();
 	}
@@ -70,7 +88,33 @@ public class Klab {
 	 * @return
 	 */
 	public Future<Estimate> estimate(Object... arguments) {
-		return null;
+		if (arguments != null) {
+			ContextRequest request = new ContextRequest();
+			request.setEstimate(true);
+			for (Object o : arguments) {
+				if (o instanceof IGeometry) {
+					request.setGeometry(((IGeometry) o).encode());
+				} else if (o instanceof SemanticType) {
+					request.setUrn(((SemanticType) o).toString());
+				} else if (o instanceof String) {
+					if (request.getUrn() != null) {
+						request.getScenarios().add((String) o);
+					} else {
+						request.setUrn((String) o);
+					}
+				}
+			}
+
+			if (request.getGeometry() != null && request.getUrn() != null) {
+				String ticket = engine.submitContext(request, this.session);
+				if (ticket != null) {
+					// TODO
+					return null;
+				}
+			}
+		}
+		throw new KlabIllegalArgumentException(
+				"Cannot build estimate request from arguments: " + Arrays.toString(arguments));
 	}
 
 	/**
@@ -79,7 +123,33 @@ public class Klab {
 	 * 
 	 * @return
 	 */
-	public Future<Observation> submit(Object... arguments) {
-		return null;
+	public Future<Context> submit(Object... arguments) {
+		if (arguments != null) {
+			ContextRequest request = new ContextRequest();
+			for (Object o : arguments) {
+				if (o instanceof IGeometry) {
+					request.setGeometry(((IGeometry) o).encode());
+				} else if (o instanceof SemanticType) {
+					request.setUrn(((SemanticType) o).toString());
+				} else if (o instanceof String) {
+					if (request.getUrn() != null) {
+						request.getScenarios().add((String) o);
+					} else {
+						request.setUrn((String) o);
+					}
+				}
+			}
+
+			if (request.getGeometry() != null && request.getUrn() != null) {
+				String ticket = engine.submitContext(request, this.session);
+				if (ticket != null) {
+					// TODO
+					return null;
+				}
+			}
+		}
+		throw new KlabIllegalArgumentException(
+				"Cannot build estimate request from arguments: " + Arrays.toString(arguments));
 	}
+
 }

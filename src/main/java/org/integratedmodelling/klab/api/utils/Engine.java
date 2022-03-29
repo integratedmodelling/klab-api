@@ -1,11 +1,15 @@
 package org.integratedmodelling.klab.api.utils;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.integratedmodelling.klab.api.API;
+import org.integratedmodelling.klab.rest.ContextRequest;
+import org.integratedmodelling.klab.rest.ObservationRequest;
+import org.integratedmodelling.klab.rest.PingResponse;
+import org.integratedmodelling.klab.rest.TicketResponse;
 
+import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
 /**
@@ -15,7 +19,7 @@ import kong.unirest.Unirest;
  * @author Ferd
  *
  */
-public class Engine {
+public class Engine implements API.PUBLIC {
 
 	private String token;
 	private String url;
@@ -27,7 +31,12 @@ public class Engine {
 		}
 	}
 
-	private <T> T post(String endpoint, Object request, Class<? extends T> responseType) {
+	private <T> T post(String endpoint, Object request, Class<? extends T> responseType, Object... pathVariables) {
+		if (pathVariables != null) {
+			for (int i = 0; i < pathVariables.length; i++) {
+				endpoint = endpoint.replace(pathVariables[i].toString(), pathVariables[++i].toString());
+			}
+		}
 		return (T) Unirest.post(makeUrl(endpoint)).contentType("application/json").accept("application/json")
 				.header("Authorization", token).body(request).asObject(responseType).getBody();
 	}
@@ -59,11 +68,21 @@ public class Engine {
 		Map<String, String> request = new HashMap<>();
 		request.put("username", username);
 		request.put("password", password);
-		Map<?, ?> result = post(API.HUB.AUTHENTICATE_USER, request, Map.class);
+		Map<?, ?> result = post(AUTHENTICATE_USER, request, Map.class);
 		if (result.containsKey("authorization")) {
 			this.token = result.get("authorization").toString();
 		}
 		return result.get("session").toString();
+	}
+
+	/**
+	 * Send the de-authentication request to clean up and exit gracefully. Always
+	 * appreciated.
+	 * 
+	 * @return
+	 */
+	public boolean deauthenticate() {
+		return Unirest.post(makeUrl(DEAUTHENTICATE_USER)).header("Authorization", token).asEmpty().isSuccess();
 	}
 
 	/**
@@ -72,34 +91,47 @@ public class Engine {
 	 * @return
 	 */
 	public String authenticate() {
-		return null;
-//		// request for a remote engine; local just ping and connect
-//		RemoteUserAuthenticationRequest request;
-//		// response from a local engine; no bean for remote
-//		EngineAuthenticationResponse ret = null;
-//		
-//		try {
-//			HttpResponse<EngineAuthenticationResponse> response = Unirest.post(makeUrl(API.ENGINE.AUTHENTICATE))
-//					.accept("application/json")
-//					.body(Files.readString(certificate.toPath(), StandardCharsets.US_ASCII))
-//					.asObject(EngineAuthenticationResponse.class);
-//
-//			if (response.isSuccess()) {
-//				ret = response.getBody();
-//				if (ret != null && ret.getUserData() != null) {
-//					this.token = ret.getUserData().getToken();
-//				}
-//			}
-//
-//			return ret;
-//			
-//		} catch (IOException e) {
-//			throw new KlabIOException(e);
-//		}
+		HttpResponse<PingResponse> request = Unirest.get(makeUrl(API.PING)).accept("application/json")
+				.asObject(PingResponse.class);
+		if (request.isSuccess()) {
+			PingResponse response = request.getBody();
+			if (response != null && response.getLocalSessionId() != null) {
+				this.token = response.getLocalSessionId();
+			}
+		}
+		return this.token;
 	}
 
 	public boolean isOnline() {
 		return this.token != null;
 	}
 
+	/**
+	 * Submit context request, return ticket number or null in case of error
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String submitContext(ContextRequest request, String sessionId) {
+		TicketResponse.Ticket response = post(CREATE_CONTEXT, request, TicketResponse.Ticket.class, P_SESSION,
+				sessionId);
+		if (response != null) {
+			return response.getId();
+		}
+		return null;
+	}
+
+	/**
+	 * Submit context request, return ticket number or null in case of error
+	 * 
+	 * @param request
+	 * @return
+	 */
+	public String submitObservation(ObservationRequest request) {
+		TicketResponse.Ticket response = post(OBSERVE_IN_CONTEXT, request, TicketResponse.Ticket.class);
+		if (response != null) {
+			return response.getId();
+		}
+		return null;
+	}
 }

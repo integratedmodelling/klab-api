@@ -1,0 +1,41 @@
+package org.integratedmodelling.klab.api.test;
+
+import java.util.concurrent.Future;
+
+import org.integratedmodelling.klab.api.Context;
+import org.integratedmodelling.klab.api.Klab;
+import org.integratedmodelling.klab.common.Geometry;
+import org.integratedmodelling.klab.common.SemanticType;
+import org.junit.Before;
+import org.junit.Test;
+
+public class LocalTestCase {
+
+	/**
+	 * A square piece of Tanzania
+	 */
+	private static String ruaha = "EPSG:4326 POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))";
+	private Klab klab;
+
+	@Before
+	public void connect() {
+		this.klab = Klab.create();
+		assert klab.isOnline();
+	}
+
+	@Test
+	public void testObservation() throws Exception {
+
+		/*
+		 * pass a semantic type and a geometry
+		 */
+		Future<Context> contextTask = klab.submit(SemanticType.create("geography:Elevation"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+
+		/**
+		 * Retrieve the context and assert it's valid
+		 */
+		Context context = contextTask.get();
+	}
+
+}
