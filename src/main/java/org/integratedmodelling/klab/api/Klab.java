@@ -6,9 +6,11 @@ import java.util.concurrent.Future;
 import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
 import org.integratedmodelling.klab.api.utils.Engine;
+import org.integratedmodelling.klab.api.utils.TicketHandler;
 import org.integratedmodelling.klab.common.SemanticType;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.rest.ContextRequest;
+import org.integratedmodelling.klab.rest.ObservationReference;
 
 /**
  * Main k.LAB client. Instantiate one with your certificate/engine URL (or
@@ -143,8 +145,19 @@ public class Klab {
 			if (request.getGeometry() != null && request.getUrn() != null) {
 				String ticket = engine.submitContext(request, this.session);
 				if (ticket != null) {
-					// TODO
-					return null;
+					return new TicketHandler<Context, ObservationReference>(engine, ticket, ObservationReference.class) {
+
+						@Override
+						protected Context convertBean(ObservationReference bean) {
+							return new Context(bean, engine, session);
+						}
+
+						@Override
+						protected ObservationReference retrieveBean(Engine engine) {
+							// TODO Auto-generated method stub
+							return null;
+						}
+					};
 				}
 			}
 		}

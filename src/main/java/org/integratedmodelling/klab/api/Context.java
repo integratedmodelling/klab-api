@@ -4,13 +4,25 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.model.Observation;
+import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.common.SemanticType;
+import org.integratedmodelling.klab.rest.ObservationReference;
 
 public class Context extends Observation {
 
 	private String contextId;
+	private String session;
+	private ObservationReference observation;
+	private Engine engine;
 	
-    /**
+    public Context(ObservationReference bean, Engine engine, String session) {
+    	super(bean);
+    	this.session = session;
+    	this.contextId = bean.getId();
+    	this.engine = engine;
+	}
+
+	/**
      * Call with a concept and geometry to create an observation or with an estimate to submit the
      * estimate. Will also include any further observation hierarchy created by calling the with()
      * functions in the estimate returned.
