@@ -11,6 +11,7 @@ import org.integratedmodelling.klab.common.SemanticType;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.rest.ContextRequest;
 import org.integratedmodelling.klab.rest.ObservationReference;
+import org.integratedmodelling.klab.rest.TicketResponse;
 
 /**
  * Main k.LAB client. Instantiate one with your certificate/engine URL (or
@@ -145,7 +146,8 @@ public class Klab {
 			if (request.getGeometry() != null && request.getUrn() != null) {
 				String ticket = engine.submitContext(request, this.session);
 				if (ticket != null) {
-					return new TicketHandler<Context, ObservationReference>(engine, ticket, ObservationReference.class) {
+					return new TicketHandler<Context, ObservationReference>(engine, session, ticket,
+							ObservationReference.class) {
 
 						@Override
 						protected Context convertBean(ObservationReference bean) {
@@ -153,8 +155,7 @@ public class Klab {
 						}
 
 						@Override
-						protected ObservationReference retrieveBean(Engine engine) {
-							// TODO Auto-generated method stub
+						protected ObservationReference retrieveBean(Engine engine, String artifactId) {
 							return null;
 						}
 					};

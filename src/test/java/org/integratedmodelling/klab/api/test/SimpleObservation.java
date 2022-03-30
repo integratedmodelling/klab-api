@@ -21,7 +21,7 @@ public class SimpleObservation extends RemoteTestCase {
 	
 	@Before
 	public void connect() {
-		Klab klab = Klab.create("https://integratedmodelling.org/modeler", username, password);
+		this.klab = Klab.create("https://integratedmodelling.org/modeler", username, password);
 		assert klab.isOnline();
 	}
 	

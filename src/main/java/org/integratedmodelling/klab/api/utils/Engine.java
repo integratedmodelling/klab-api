@@ -8,6 +8,7 @@ import org.integratedmodelling.klab.rest.ContextRequest;
 import org.integratedmodelling.klab.rest.ObservationRequest;
 import org.integratedmodelling.klab.rest.PingResponse;
 import org.integratedmodelling.klab.rest.TicketResponse;
+import org.integratedmodelling.klab.rest.TicketResponse.Ticket;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -133,5 +134,9 @@ public class Engine implements API.PUBLIC {
 			return response.getId();
 		}
 		return null;
+	}
+
+	public Ticket getTicket(String ticketId, String sessionId) {
+		return get(TICKET_INFO.replace(P_SESSION, sessionId).replace(P_TICKET, ticketId), TicketResponse.Ticket.class);
 	}
 }

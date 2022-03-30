@@ -6,6 +6,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.integratedmodelling.klab.api.runtime.ITicket.Status;
+import org.integratedmodelling.klab.rest.TicketResponse;
+
 /**
  * Handler that uses the ticket API in k.LAB to provide access to a bean
  * computed asynchronously at the remote side.
@@ -23,12 +26,13 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 	private long POLL_INTERVAL = 1500;
 
 	private Engine engine;
+	private String sessionId;
 	private String ticketId;
 	private Class<B> beanClass;
 	private AtomicReference<T> result = new AtomicReference<>();
 	private boolean cancelled;
 
-	public TicketHandler(Engine engine, String ticketId, Class<B> beanClass) {
+	public TicketHandler(Engine engine, String sessionId, String ticketId, Class<B> beanClass) {
 		this.engine = engine;
 		this.ticketId = ticketId;
 		this.beanClass = beanClass;
@@ -57,7 +61,7 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 			return null;
 		}
 		while (result.get() == null) {
-			B bean = retrieveBean(engine);
+			B bean = pollForBean(engine);
 			if (bean != null) {
 				result.set(convertBean(bean));
 				break;
@@ -82,7 +86,7 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 			if (time > tout) {
 				break;
 			}
-			B bean = retrieveBean(engine);
+			B bean = pollForBean(engine);
 			if (bean != null) {
 				result.set(convertBean(bean));
 				break;
@@ -94,6 +98,15 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 		}
 
 		return result.get();
+	}
+
+	private B pollForBean(Engine engine) {
+		TicketResponse.Ticket ticket = engine.getTicket(ticketId, sessionId);
+		if (ticket == null || ticket.getStatus() == Status.ERROR) {
+			cancel(true);
+			return null;
+		}
+		return ticket.getStatus() == Status.OPEN ? null : retrieveBean(engine, ticket.getData().get("artifact"));
 	}
 
 	/**
@@ -113,6 +126,6 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 	 * @param engine
 	 * @return
 	 */
-	protected abstract B retrieveBean(Engine engine);
+	protected abstract B retrieveBean(Engine engine, String artifactId);
 
 }
