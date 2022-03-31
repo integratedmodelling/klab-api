@@ -36,6 +36,7 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 		this.engine = engine;
 		this.ticketId = ticketId;
 		this.beanClass = beanClass;
+		this.sessionId = sessionId;
 	}
 	
 	@Override
@@ -106,7 +107,15 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 			cancel(true);
 			return null;
 		}
-		return ticket.getStatus() == Status.OPEN ? null : retrieveBean(engine, ticket.getData().get("artifact"));
+		if (ticket.getStatus() == Status.RESOLVED) {
+			B ret = retrieveBean(engine, ticket.getData().get("artifact"));
+			if (ret == null) {
+				// happens if there are remote exceptions when retrieving the artifact
+				cancel(true);
+			}
+			return ret;
+		}
+		return null;
 	}
 
 	/**

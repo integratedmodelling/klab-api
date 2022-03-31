@@ -156,7 +156,7 @@ public class Klab {
 
 						@Override
 						protected ObservationReference retrieveBean(Engine engine, String artifactId) {
-							return null;
+							return engine.getObservation(artifactId, session);
 						}
 					};
 				}

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.integratedmodelling.klab.api.API;
 import org.integratedmodelling.klab.rest.ContextRequest;
+import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationRequest;
 import org.integratedmodelling.klab.rest.PingResponse;
 import org.integratedmodelling.klab.rest.TicketResponse;
@@ -130,13 +131,22 @@ public class Engine implements API.PUBLIC {
 	 */
 	public String submitObservation(ObservationRequest request) {
 		TicketResponse.Ticket response = post(OBSERVE_IN_CONTEXT, request, TicketResponse.Ticket.class);
-		if (response != null) {
+		if (response != null && response.getId() != null) {
 			return response.getId();
 		}
 		return null;
 	}
 
 	public Ticket getTicket(String ticketId, String sessionId) {
-		return get(TICKET_INFO.replace(P_SESSION, sessionId).replace(P_TICKET, ticketId), TicketResponse.Ticket.class);
+		Ticket ret = get(TICKET_INFO.replace(P_SESSION, sessionId).replace(P_TICKET, ticketId),
+				TicketResponse.Ticket.class);
+		return (ret == null || ret.getId() == null) ? null : ret;
+	}
+
+	public ObservationReference getObservation(String artifactId, String sessionId) {
+		ObservationReference ret = get(
+				RETRIEVE_OBSERVATION_DESCRIPTOR.replace(P_SESSION, sessionId).replace(P_OBSERVATION, artifactId),
+				ObservationReference.class);
+		return (ret == null || ret.getId() == null) ? null : ret;
 	}
 }
