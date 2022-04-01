@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.api.runtime.ITicket.Status;
 import org.integratedmodelling.klab.rest.TicketResponse;
 
@@ -20,22 +21,15 @@ import org.integratedmodelling.klab.rest.TicketResponse;
  */
 public abstract class TicketHandler<T, B> implements Future<T> {
 
-	/**
-	 * Default polling interval is every 1.5 seconds.
-	 */
-	private long POLL_INTERVAL = 1500;
-
 	private Engine engine;
 	private String sessionId;
 	private String ticketId;
-	private Class<B> beanClass;
 	private AtomicReference<T> result = new AtomicReference<>();
 	private boolean cancelled;
 
-	public TicketHandler(Engine engine, String sessionId, String ticketId, Class<B> beanClass) {
+	public TicketHandler(Engine engine, String sessionId, String ticketId) {
 		this.engine = engine;
 		this.ticketId = ticketId;
-		this.beanClass = beanClass;
 		this.sessionId = sessionId;
 	}
 	
@@ -69,7 +63,7 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 			} else if (isCancelled()) {
 				break;
 			}
-			Thread.sleep(POLL_INTERVAL);
+			Thread.sleep(Klab.POLLING_INTERVAL_MS);
 		}
 		return null;
 	}
@@ -94,8 +88,8 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 			} else if (isCancelled()) {
 				break;
 			}
-			Thread.sleep(POLL_INTERVAL);
-			time += POLL_INTERVAL;
+			Thread.sleep(Klab.POLLING_INTERVAL_MS);
+			time += Klab.POLLING_INTERVAL_MS;
 		}
 
 		return result.get();
@@ -103,7 +97,7 @@ public abstract class TicketHandler<T, B> implements Future<T> {
 
 	private B pollForBean(Engine engine) {
 		TicketResponse.Ticket ticket = engine.getTicket(ticketId, sessionId);
-		if (ticket == null || ticket.getStatus() == Status.ERROR) {
+		if (ticket == null || ticket.getStatus() == Status.ERROR || ticket.getId() == null) {
 			cancel(true);
 			return null;
 		}

@@ -4,8 +4,8 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Context;
 import org.integratedmodelling.klab.api.Klab;
+import org.integratedmodelling.klab.api.Observable;
 import org.integratedmodelling.klab.common.Geometry;
-import org.integratedmodelling.klab.common.SemanticType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,8 +29,8 @@ public class LocalTestCase {
 		/*
 		 * pass a semantic type and a geometry
 		 */
-		Future<Context> contextTask = klab.submit(SemanticType.create("geography:Elevation"),
-				Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("geography:Elevation").in("ft"));
 
 		/**
 		 * Retrieve the context and assert it's valid

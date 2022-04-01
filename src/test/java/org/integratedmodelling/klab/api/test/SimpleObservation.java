@@ -5,8 +5,8 @@ import java.util.concurrent.Future;
 import org.integratedmodelling.klab.api.Context;
 import org.integratedmodelling.klab.api.Estimate;
 import org.integratedmodelling.klab.api.Klab;
+import org.integratedmodelling.klab.api.Observable;
 import org.integratedmodelling.klab.common.Geometry;
-import org.integratedmodelling.klab.common.SemanticType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class SimpleObservation extends RemoteTestCase {
 		 * pass a semantic type and a geometry
 		 */
 		Future<Estimate> estimateTask = klab.estimate(
-				SemanticType.create("geography:Elevation"),
+				Observable.create("earth:Region"),
 				Geometry.builder().grid(ruaha, "1 km").years(2010).build());
 		
 		/*

@@ -7,11 +7,11 @@ import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
 import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.api.utils.TicketHandler;
+import org.integratedmodelling.klab.common.GeometryBuilder;
 import org.integratedmodelling.klab.common.SemanticType;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.rest.ContextRequest;
 import org.integratedmodelling.klab.rest.ObservationReference;
-import org.integratedmodelling.klab.rest.TicketResponse;
 
 /**
  * Main k.LAB client. Instantiate one with your certificate/engine URL (or
@@ -27,7 +27,7 @@ public class Klab {
 	Engine engine;
 	String session;
 
-	private long POLLING_INTERVAL_MS = 2000l;
+	public static long POLLING_INTERVAL_MS = 2000l;
 
 	private Klab(String engineUrl) {
 		this.engine = new Engine(engineUrl);
@@ -85,85 +85,99 @@ public class Klab {
 	}
 
 	/**
-	 * TEMPORARY needs to be the last step of a specification created by the
-	 * singleton.
+	 * Call with a concept and geometry to retrieve an estimate of the cost of
+	 * making the context observation described. Add any observations to be made in
+	 * the context as semantic types or options.
 	 * 
-	 * @return
+	 * @param contextType the type of the context. The Explorer sets that as
+	 *                    earth:Region by default.
+	 * @param geometry    the geometry for the context. Use {@link GeometryBuilder}
+	 *                    to create fluently.
+	 * @param arguments   pass observables for further observations to be made in
+	 *                    the context (if passed, the task will finish after all
+	 *                    have been computed). Strings will be interpreted as
+	 *                    scenario names.
+	 * @return an estimate future; call get() to wait until the estimate is ready
+	 *         and retrieve it.
 	 */
-	public Future<Estimate> estimate(Object... arguments) {
-		if (arguments != null) {
-			ContextRequest request = new ContextRequest();
-			request.setEstimate(true);
-			for (Object o : arguments) {
-				if (o instanceof IGeometry) {
-					request.setGeometry(((IGeometry) o).encode());
-				} else if (o instanceof SemanticType) {
-					request.setUrn(((SemanticType) o).toString());
-				} else if (o instanceof String) {
-					if (request.getUrn() != null) {
-						request.getScenarios().add((String) o);
-					} else {
-						request.setUrn((String) o);
-					}
-				}
-			}
+	public Future<Estimate> estimate(Observable contextType, IGeometry geometry, Object... arguments) {
 
-			if (request.getGeometry() != null && request.getUrn() != null) {
-				String ticket = engine.submitContext(request, this.session);
-				if (ticket != null) {
-					// TODO
-					return null;
-				}
+		ContextRequest request = new ContextRequest();
+		request.setContextType(contextType.toString());
+		request.setGeometry(geometry.encode());
+		request.setEstimate(true);
+		for (Object o : arguments) {
+			if (o instanceof Observable) {
+				request.getObservables().add(((Observable) o).toString());
+			} else if (o instanceof String) {
+				request.getScenarios().add((String) o);
 			}
 		}
+
+		if (request.getGeometry() != null && request.getContextType() != null) {
+			// TODO call endpoint, get ticket manager object
+		}
+
 		throw new KlabIllegalArgumentException(
 				"Cannot build estimate request from arguments: " + Arrays.toString(arguments));
 	}
 
 	/**
-	 * Call with a concept and geometry to create an observation (accepting all
-	 * costs) or with an estimate to submit the estimate.
+	 * Accept a previously obtained estimate and retrieve the correspondent context.
 	 * 
+	 * @param estimate
 	 * @return
 	 */
-	public Future<Context> submit(Object... arguments) {
-		if (arguments != null) {
-			ContextRequest request = new ContextRequest();
-			for (Object o : arguments) {
-				if (o instanceof IGeometry) {
-					request.setGeometry(((IGeometry) o).encode());
-				} else if (o instanceof SemanticType) {
-					request.setUrn(((SemanticType) o).toString());
-				} else if (o instanceof String) {
-					if (request.getUrn() != null) {
-						request.getScenarios().add((String) o);
-					} else {
-						request.setUrn((String) o);
-					}
-				}
-			}
+	public Future<Context> submit(Estimate estimate) {
+		return null;
+	}
 
-			if (request.getGeometry() != null && request.getUrn() != null) {
-				String ticket = engine.submitContext(request, this.session);
-				if (ticket != null) {
-					return new TicketHandler<Context, ObservationReference>(engine, session, ticket,
-							ObservationReference.class) {
-
-						@Override
-						protected Context convertBean(ObservationReference bean) {
-							return new Context(bean, engine, session);
-						}
-
-						@Override
-						protected ObservationReference retrieveBean(Engine engine, String artifactId) {
-							return engine.getObservation(artifactId, session);
-						}
-					};
-				}
+	/**
+	 * Call with a concept and geometry to create the context observation (accepting
+	 * all costs) and optionally further observations as semantic types or options.
+	 * 
+	 * @param contextType the type of the context. The Explorer sets that as
+	 *                    earth:Region by default.
+	 * @param geometry    the geometry for the context. Use {@link GeometryBuilder}
+	 *                    to create fluently.
+	 * @param arguments   pass semantic types for further observations to be made in
+	 *                    the context (if passed, the task will finish after all
+	 *                    have been computed). Strings will be interpreted as
+	 *                    scenario names.
+	 * @return
+	 */
+	public Future<Context> submit(Observable contextType, IGeometry geometry, Object... arguments) {
+		ContextRequest request = new ContextRequest();
+		request.setContextType(contextType.toString());
+		request.setGeometry(geometry.encode());
+		request.setEstimate(true);
+		for (Object o : arguments) {
+			if (o instanceof Observable) {
+				request.getObservables().add(((Observable) o).toString());
+			} else if (o instanceof String) {
+				request.getScenarios().add((String) o);
 			}
 		}
+
+		if (request.getGeometry() != null && request.getContextType() != null) {
+			String ticket = engine.submitContext(request, this.session);
+			if (ticket != null) {
+				return new TicketHandler<Context, ObservationReference>(engine, session, ticket) {
+
+					@Override
+					protected Context convertBean(ObservationReference bean) {
+						return new Context(bean, engine, session);
+					}
+
+					@Override
+					protected ObservationReference retrieveBean(Engine engine, String artifactId) {
+						return engine.getObservation(artifactId, session);
+					}
+				};
+			}
+		}
+
 		throw new KlabIllegalArgumentException(
 				"Cannot build estimate request from arguments: " + Arrays.toString(arguments));
 	}
-
 }

@@ -10,62 +10,55 @@ import org.integratedmodelling.klab.rest.ObservationReference;
 
 public class Context extends Observation {
 
-	private String contextId;
-	private String session;
-	private ObservationReference observation;
-	private Engine engine;
+	public Context(ObservationReference bean, Engine engine, String session) {
+		super(bean, session, engine);
+	}
 	
-    public Context(ObservationReference bean, Engine engine, String session) {
-    	super(bean);
-    	this.session = session;
-    	this.contextId = bean.getId();
-    	this.engine = engine;
+	/**
+	 * Call with a concept and geometry to create an observation or with an estimate
+	 * to submit the estimate. Will also include any further observation hierarchy
+	 * created by calling the with() functions in the estimate returned.
+	 * 
+	 * @return
+	 */
+	public Future<Estimate> estimate(Object... arguments) {
+		return null;
 	}
 
 	/**
-     * Call with a concept and geometry to create an observation or with an estimate to submit the
-     * estimate. Will also include any further observation hierarchy created by calling the with()
-     * functions in the estimate returned.
-     * 
-     * @return
-     */
-    public Future<Estimate> estimate(Object... arguments) {
-        return null;
-    }
+	 * Call with a concept and geometry to create an observation or with an estimate
+	 * to submit the estimate. Will also include any further observation hierarchy
+	 * created by calling the with() functions.
+	 * 
+	 * @return
+	 */
+	public Future<Observation> submit(Object... arguments) {
+		return null;
+	}
 
-    /**
-     * Call with a concept and geometry to create an observation or with an estimate to submit the
-     * estimate. Will also include any further observation hierarchy created by calling the with()
-     * functions.
-     * 
-     * @return
-     */
-    public Future<Observation> submit(Object... arguments) {
-        return null;
-    }
+	/**
+	 * Use in a fluent fashion to insert quality observations into the context at
+	 * the next submit(). Does not have any effect before submit() is called.
+	 * 
+	 * @param concept
+	 * @param value   a value appropriate for the concept
+	 * @return this same context for chaining calls.
+	 */
+	public Context with(Observable concept, Object value) {
+		return this;
+	}
 
-    /**
-     * Use in a fluent fashion to insert quality observations into the context at the next submit().
-     * Does not have any effect before submit() is called.
-     * 
-     * @param concept
-     * @param value a value appropriate for the concept
-     * @return this same context for chaining calls.
-     */
-    public Context with(SemanticType concept, Object value) {
-        return this;
-    }
-
-    /**
-     * Create a sub-object for the next submit. Any {@link #with(SemanticType, Object)} or
-     * {@link #with(SemanticType, IGeometry)} on the resulting context will apply to the object.
-     * 
-     * @param subject
-     * @param geometry
-     * @return
-     */
-    public Context with(SemanticType subject, IGeometry geometry) {
-        return null;
-    }
+	/**
+	 * Create a sub-object for the next submit. Any
+	 * {@link #with(SemanticType, Object)} or {@link #with(SemanticType, IGeometry)}
+	 * on the resulting context will apply to the object.
+	 * 
+	 * @param subject
+	 * @param geometry
+	 * @return
+	 */
+	public Context with(Observable subject, IGeometry geometry) {
+		return null;
+	}
 
 }
