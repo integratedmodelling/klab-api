@@ -20,6 +20,16 @@ public class Observation {
         this.engine = engine;
     }
 
+    public void notifyObservation(String id) {
+        for (String name : this.reference.getChildIds().keySet()) {
+            if (id.equals(this.reference.getChildIds().get(name))) {
+                catalogIds.put(name, id);
+                getObservation(name);
+                break;
+            }
+        }
+    }
+    
     /**
      * Locate or retrieve the descriptor of an observation that has been made previously in the
      * context.

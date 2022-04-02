@@ -140,7 +140,7 @@ public class TicketHandler<T> implements Future<T> {
         Context context = new Context(bean, engine, sessionId);
         if (ticket.getData().containsKey("artifacts")) {
             for (String oid : ticket.getData().get("artifacts").split(",")) {
-                context.getObservation(oid);
+                context.notifyObservation(oid);
             }
         }
         return (T) context;
