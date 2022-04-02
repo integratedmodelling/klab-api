@@ -1,4 +1,4 @@
-package org.integratedmodelling.klab.api;
+package org.integratedmodelling.klab.api.model;
 
 import org.integratedmodelling.klab.common.SemanticType;
 

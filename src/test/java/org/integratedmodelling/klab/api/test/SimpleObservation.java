@@ -2,10 +2,10 @@ package org.integratedmodelling.klab.api.test;
 
 import java.util.concurrent.Future;
 
-import org.integratedmodelling.klab.api.Context;
-import org.integratedmodelling.klab.api.Estimate;
 import org.integratedmodelling.klab.api.Klab;
-import org.integratedmodelling.klab.api.Observable;
+import org.integratedmodelling.klab.api.model.Context;
+import org.integratedmodelling.klab.api.model.Estimate;
+import org.integratedmodelling.klab.api.model.Observable;
 import org.integratedmodelling.klab.common.Geometry;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class SimpleObservation extends RemoteTestCase {
 		/*
 		 * assess the cost (which will be 0) and if OK, submit the estimate
 		 */
-		if (estimate.getCost().getFirst() < 100000) {
+		if (estimate.getCost() < 100000) {
 
 			Future<Context> contextTask = klab.submit(estimate);
 			
