@@ -95,13 +95,17 @@ public class Engine implements API.PUBLIC {
      * @return
      */
     public String authenticate() {
-        HttpResponse<PingResponse> request = Unirest.get(makeUrl(API.PING)).accept("application/json")
-                .asObject(PingResponse.class);
-        if (request.isSuccess()) {
-            PingResponse response = request.getBody();
-            if (response != null && response.getLocalSessionId() != null) {
-                this.token = response.getLocalSessionId();
+        try {
+            HttpResponse<PingResponse> request = Unirest.get(makeUrl(API.PING)).accept("application/json")
+                    .asObject(PingResponse.class);
+            if (request.isSuccess()) {
+                PingResponse response = request.getBody();
+                if (response != null && response.getLocalSessionId() != null) {
+                    this.token = response.getLocalSessionId();
+                }
             }
+        } catch (Throwable t) {
+            // no connection: just return null, isOnline() will return false
         }
         return this.token;
     }
