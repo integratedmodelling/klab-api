@@ -10,6 +10,7 @@ import org.integratedmodelling.klab.api.model.Estimate;
 import org.integratedmodelling.klab.api.model.Observable;
 import org.integratedmodelling.klab.api.model.Observation;
 import org.integratedmodelling.klab.common.Geometry;
+import org.integratedmodelling.klab.utils.NumberUtils;
 import org.integratedmodelling.klab.utils.Range;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +18,8 @@ import org.junit.Test;
 public class LocalTestCase {
 
     /**
-     * A square piece of Tanzania in which elevation values in NASA STRM 90m DEM are between 271 and
-     * 2875 m
+     * A square piece of Tanzania in which elevation values (in NASA STRM 90m DEM) are between 271
+     * and 2875 m
      */
     private static String ruaha = "EPSG:4326 POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))";
     private Klab klab;
@@ -94,7 +95,7 @@ public class LocalTestCase {
         assert context != null;
         assert context.getObservation("elevation") == null;
         assert context.getObservation("zurba") != null;
-        
+
         /*
          * observation is in ft: check that range is wider than the expected in m
          */
@@ -106,7 +107,7 @@ public class LocalTestCase {
     public void testEstimateObservation() throws Exception {
 
         /*
-         * same parameters
+         * same parameters as an observe() call
          */
         Future<Estimate> estimateTask = klab.estimate(Observable.create("earth:Region"),
                 Geometry.builder().grid(ruaha, "1 km").years(2010).build(),
@@ -128,28 +129,20 @@ public class LocalTestCase {
             assert context.getObservation("elevation") != null;
         }
     }
-    
+
     @Test
     public void testContextualObservation() throws Exception {
 
-        /*
-         * pass a semantic type and a geometry
-         */
-        Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
-                Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+        Context context = klab.submit(Observable.create("earth:Region"),
+                Geometry.builder().grid(ruaha, "1 km").years(2010).build()).get();
 
-        /*
-         * Retrieve the context and assert it's valid
-         */
-        Context context = contextTask.get();
         assert context != null;
 
-        Future<Observation> elevationTask = context.submit(new Observable("geography:Elevation"));
-        Observation elevation = elevationTask.get();
-        
+        Observation elevation = context.submit(new Observable("geography:Elevation")).get();
+
         assert elevation != null;
         assert Range.create(0, 3000).contains(elevation.getDataRange());
-        
+
         /*
          * ensure the context has been updated with the new observation
          */
@@ -157,4 +150,16 @@ public class LocalTestCase {
 
     }
 
+    @Test
+    public void testConstantObservation() throws Exception {
+
+        Context context = klab.submit(Observable.create("earth:Region"),
+                Geometry.builder().grid(ruaha, "1 km").years(2010).build()).get();
+        assert context != null;
+        Observation constantState = context.submit(Observable.create("100 as geography:Elevation in m"))
+                .get();
+        assert constantState.getScalarValue() instanceof Double
+                && NumberUtils.equal((Double) constantState.getScalarValue(), 100.0);
+
+    }
 }

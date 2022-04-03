@@ -7,7 +7,9 @@ import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationReference.ObservationType;
+import org.integratedmodelling.klab.utils.NumberUtils;
 import org.integratedmodelling.klab.utils.Range;
+import org.integratedmodelling.klab.utils.Utils;
 
 public class Observation {
 
@@ -69,6 +71,21 @@ public class Observation {
         }
         return Range.create(this.reference.getDataSummary().getMinValue(),
                 this.reference.getDataSummary().getMaxValue());
+    }
+
+    public Object getScalarValue() {
+        String literalValue = reference.getLiteralValue();
+        if (literalValue != null) {
+            switch(reference.getValueType()) {
+            case BOOLEAN:
+                return Boolean.parseBoolean(literalValue);
+            case NUMBER:
+                return Double.parseDouble(literalValue);
+            default:
+                break;
+            }
+        }
+        return literalValue;
     }
 
 }
