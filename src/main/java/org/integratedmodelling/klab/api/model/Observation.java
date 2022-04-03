@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.integratedmodelling.klab.api.utils.Engine;
+import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
 import org.integratedmodelling.klab.rest.ObservationReference;
+import org.integratedmodelling.klab.rest.ObservationReference.ObservationType;
+import org.integratedmodelling.klab.utils.Range;
 
 public class Observation {
 
@@ -29,7 +32,7 @@ public class Observation {
             }
         }
     }
-    
+
     /**
      * Locate or retrieve the descriptor of an observation that has been made previously in the
      * context.
@@ -52,6 +55,20 @@ public class Observation {
             return ret;
         }
         return null;
+    }
+
+    /**
+     * The range of the data in a state observation. If the observation is not a state, an exception
+     * is thrown. If it's a state but not numeric, the result is undefined.
+     * 
+     * @return
+     */
+    public Range getDataRange() {
+        if (this.reference == null || this.reference.getObservationType() != ObservationType.STATE) {
+            throw new KlabIllegalStateException("getDataRange called on a non-state or null observation");
+        }
+        return Range.create(this.reference.getDataSummary().getMinValue(),
+                this.reference.getDataSummary().getMaxValue());
     }
 
 }
