@@ -40,7 +40,7 @@ public class Context extends Observation {
 
         String ticket = engine.submitObservation(request, this.session);
         if (ticket != null) {
-            return new TicketHandler<Estimate>(engine, session, ticket);
+            return new TicketHandler<Estimate>(engine, session, ticket, this);
         }
 
         throw new KlabIllegalArgumentException(
@@ -68,8 +68,8 @@ public class Context extends Observation {
 
         String ticket = engine.submitObservation(request, this.session);
         if (ticket != null) {
-            // TODO must update context bean when observation arrives!
-            return new TicketHandler<Observation>(engine, session, ticket);
+            // TODO updates the context bean when observation arrives!
+            return new TicketHandler<Observation>(engine, session, ticket, this);
         }
 
         throw new KlabIllegalArgumentException(
@@ -82,8 +82,8 @@ public class Context extends Observation {
         }
         String ticket = engine.submitEstimate(estimate.getEstimateId(), this.session);
         if (ticket != null) {
-            // TODO the handler must update the context catalog when the observation arrives
-            return new TicketHandler<Observation>(engine, session, ticket);
+            // the handler updates the context catalog when the observation arrives
+            return new TicketHandler<Observation>(engine, session, ticket, this);
         }
 
         throw new KlabIllegalStateException("estimate cannot be used");
@@ -114,6 +114,24 @@ public class Context extends Observation {
     public Context with(Observable subject, IGeometry geometry) {
         // TODO
         return null;
+    }
+
+    /*
+     * Called after an observation to update the context data and ensure the context has the new
+     * observation in its catalog.
+     * 
+     * @param ret
+     */
+    public void updateWith(Observation ret) {
+        this.reference = engine.getObservation(reference.getId(), session);
+        for (String name : this.reference.getChildIds().keySet()) {
+            if (ret.reference.getId().equals(this.reference.getChildIds().get(name))) {
+                catalogIds.put(name, ret.reference.getId());
+                catalog.put(ret.reference.getId(), ret);
+                break;
+            }
+        }
+
     }
 
 }

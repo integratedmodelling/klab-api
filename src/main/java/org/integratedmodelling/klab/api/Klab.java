@@ -114,7 +114,7 @@ public class Klab {
         if (request.getGeometry() != null && request.getContextType() != null) {
             String ticket = engine.submitContext(request, this.session);
             if (ticket != null) {
-                return new TicketHandler<Estimate>(engine, session, ticket);
+                return new TicketHandler<Estimate>(engine, session, ticket, null);
             }
         }
 
@@ -134,7 +134,7 @@ public class Klab {
         }
         String ticket = engine.submitEstimate(estimate.getEstimateId(), this.session);
         if (ticket != null) {
-            return new TicketHandler<Context>(engine, session, ticket);
+            return new TicketHandler<Context>(engine, session, ticket, null);
         }
 
         throw new KlabIllegalStateException("estimate cannot be used");
@@ -168,7 +168,7 @@ public class Klab {
         if (request.getGeometry() != null && request.getContextType() != null) {
             String ticket = engine.submitContext(request, this.session);
             if (ticket != null) {
-                return new TicketHandler<Context>(engine, session, ticket);
+                return new TicketHandler<Context>(engine, session, ticket, null);
             }
         }
 

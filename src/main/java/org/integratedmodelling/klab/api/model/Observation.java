@@ -17,7 +17,7 @@ public class Observation {
     protected String session;
     protected Engine engine;
 
-    protected Observation(ObservationReference reference, String session, Engine engine) {
+    public Observation(ObservationReference reference, String session, Engine engine) {
         this.reference = reference;
         this.session = session;
         this.engine = engine;

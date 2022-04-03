@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.integratedmodelling.klab.api.model.Context;
 import org.integratedmodelling.klab.api.model.Estimate;
+import org.integratedmodelling.klab.api.model.Observation;
 import org.integratedmodelling.klab.api.runtime.ITicket.Status;
 import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabInternalErrorException;
@@ -29,13 +30,15 @@ public class TicketHandler<T> implements Future<T> {
     private Engine engine;
     private String sessionId;
     private String ticketId;
+    private Context context;
     private AtomicReference<T> result = new AtomicReference<>();
     private boolean cancelled;
 
-    public TicketHandler(Engine engine, String sessionId, String ticketId) {
+    public TicketHandler(Engine engine, String sessionId, String ticketId, Context context) {
         this.engine = engine;
         this.ticketId = ticketId;
         this.sessionId = sessionId;
+        this.context = context;
     }
 
     @Override
@@ -130,7 +133,18 @@ public class TicketHandler<T> implements Future<T> {
         throw new KlabInternalErrorException("unexpected ticket type: " + ticket.getType());
     }
 
+    @SuppressWarnings("unchecked")
     private T makeObservation(Ticket ticket) {
+        if (ticket.getData().containsKey("artifacts")) {
+            for (String oid : ticket.getData().get("artifacts").split(",")) {
+                ObservationReference bean = engine.getObservation(oid, sessionId);
+                Observation ret = new Observation(bean, sessionId, engine);
+                if (context != null) {
+                    context.updateWith(ret);
+                }
+                return (T) ret;
+            }
+        }
         return null;
     }
 

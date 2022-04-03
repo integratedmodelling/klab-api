@@ -8,6 +8,7 @@ import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.api.model.Context;
 import org.integratedmodelling.klab.api.model.Estimate;
 import org.integratedmodelling.klab.api.model.Observable;
+import org.integratedmodelling.klab.api.model.Observation;
 import org.integratedmodelling.klab.common.Geometry;
 import org.integratedmodelling.klab.utils.Range;
 import org.junit.Before;
@@ -126,6 +127,34 @@ public class LocalTestCase {
             assert context != null;
             assert context.getObservation("elevation") != null;
         }
+    }
+    
+    @Test
+    public void testContextualObservation() throws Exception {
+
+        /*
+         * pass a semantic type and a geometry
+         */
+        Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+                Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+
+        /*
+         * Retrieve the context and assert it's valid
+         */
+        Context context = contextTask.get();
+        assert context != null;
+
+        Future<Observation> elevationTask = context.submit(new Observable("geography:Elevation"));
+        Observation elevation = elevationTask.get();
+        
+        assert elevation != null;
+        assert Range.create(0, 3000).contains(elevation.getDataRange());
+        
+        /*
+         * ensure the context has been updated with the new observation
+         */
+        assert context.getObservation("elevation") instanceof Observation;
+
     }
 
 }
