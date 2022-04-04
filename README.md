@@ -1,7 +1,7 @@
 # Java k.LAB API Client
 
-<img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="right"
-     alt="k.LAB logo" width="120" height="178">
+<img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="left"
+     alt="k.LAB logo" width="220" height="128">
 
 This package is a Java client for https://github.com/integratedmodelling/klab[k.LAB]. It allows registered users of k.LAB to make
 observations on the k.LAB semantic web without running a k.LAB engine.
@@ -39,26 +39,29 @@ client automates this using Java futures.
 <details><summary><b>Create a context and make a simple observation</b></summary>
 
 ```java
-		// connect to the server at the passed URL. Calling create() without parameters will
-		// connect to a local engine, which must be active.
-		Klab klab = Klab.create("https://my.klab.engine.com", "myusername", "mypassword");
-		Context context = klab
-				.submit(
-					Observable.create("earth:Region"), 
-					Geometry.builder().grid(ruaha, "1 km").years(2010).build())
-				// submit() returns a task; calling get() on it blocks until the observation is made
-				.get();
+// connect to the server at the passed URL. Calling create() without parameters will
+// connect to a local engine, which must be active.
+Klab klab = Klab.create("https://my.klab.engine.com", "myusername", "mypassword");
 
-		// remote failure will result in exceptions thrown by get(), so if we get here we have a valid context
-		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
+// a Context extends Observation with methods that enable making observations in it and
+// querying them
+Context context = klab
+		.submit(
+			Observable.create("earth:Region"), 
+			Geometry.builder().grid(ruaha, "1 km").years(2010).build())
+		// submit() returns a task; calling get() on it blocks until the observation is made
+		.get();
 
-		// in the passed context, the observation of elevation should be between 270 and 2800 m
-		assert Range.create(0, 3000).contains(elevation.getDataRange());
+// remote failure will result in exceptions thrown by get(), so if we get here we have a valid context
+Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 
-		/*
-		 * ensure the context has been updated with the new observation
-		 */
-		assert context.getObservation("elevation") instanceof Observation;
+// in the passed context, the observation of elevation should be between 270 and 2800 m
+assert Range.create(0, 3000).contains(elevation.getDataRange());
+
+/*
+ * ensure the context has been updated with the new observation
+ */
+assert context.getObservation("elevation") instanceof Observation;
 ```
 </details>
 
