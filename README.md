@@ -1,12 +1,24 @@
 # Java k.LAB API Client
 
-<img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="left"
-     alt="k.LAB logo" width="220" height="128">
+<img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="right"
+     alt="k.LAB logo" width="258" height="108">
 
-This package is a Java client for https://github.com/integratedmodelling/klab[k.LAB]. It allows registered users of k.LAB to make
-observations on the k.LAB semantic web without running a k.LAB engine.
+This package is a Java client for [k.LAB](https://github.com/integratedmodelling/klab). It allows registered users of k.LAB to make
+observations on the k.LAB semantic web from a Java program using the REST API. Similar clients are being written for Python and Javascript.
 
 ## Installation 
+
+This package is available in Maven Central as `integratedmodelling.org:klab-api`. To add to a Maven project, add
+
+```maven
+<dependency>
+   <groupId>org.integratedmodelling</groupId>
+   <artifactId>klab-api</artifactId>
+   <version>${klab.api.version}</version>
+</dependency>
+```
+to the dependency section of your `pom.xml`. The latest version is **0.1.0-SNAPSHOT**. The only dependencies are the core k.LAB
+interface package and Unirest.
 
 ## Use of the k.LAB network
 
