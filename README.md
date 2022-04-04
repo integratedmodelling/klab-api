@@ -1,3 +1,5 @@
+:warning: This package is not yet ready to use. This note will be removed when it is.
+
 # Java k.LAB API Client
 
 <img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="right"
