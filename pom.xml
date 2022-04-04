@@ -4,11 +4,52 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.integratedmodelling</groupId>
 	<artifactId>klab-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<name>k.LAB API Java client</name>
+	
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License (AGPL) version 3.0</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.en.html</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Ferdinando Villa</name>
+			<email>ferdinando.villa@bc3research.org</email>
+			<organization>Basque Centre for Climate Change (BC3); IKERBASQUE, Basque foundation for science</organization>
+			<organizationUrl>http://www.bc3research.org</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:http://github.com/integratedmodelling/klab-api</connection>
+		<developerConnection>scm:git:https://github.com/integratedmodelling/klab-api</developerConnection>
+		<url>https://github.com/integratedmodelling/klab-api.git</url>
+	</scm>
+	
+	<organization>
+		<name>integratedmodelling.org</name>
+		<url>http://www.integratedmodelling.org</url>
+	</organization>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<klab.version>0.11.0-SNAPSHOT</klab.version>
+		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
+		<java.version>11</java.version>
 	</properties>
 
 	<dependencies>
@@ -17,7 +58,6 @@
 			<artifactId>org.integratedmodelling.klab.api</artifactId>
 			<version>${klab.version}</version>
 		</dependency>
-		<!-- Unirest for REST interactions -->
 		<dependency>
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-java</artifactId>
