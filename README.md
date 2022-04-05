@@ -55,6 +55,8 @@ client automates this using Java futures.
 <details><summary><b>Create a context and make a simple observation</b></summary>
 
 ```java
+String ruaha = "EPSG:4326 POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))";
+
 // connect to the server at the passed URL. Calling create() without parameters will
 // connect to a local engine, which must be active.
 Klab klab = Klab.create("https://my.klab.engine.com", "myusername", "mypassword");
