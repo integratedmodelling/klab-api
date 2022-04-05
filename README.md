@@ -8,6 +8,8 @@
 This package is a Java client for [k.LAB](https://github.com/integratedmodelling/klab). It allows registered users of k.LAB to make
 observations on the k.LAB semantic web from a Java program using the REST API. Similar clients are being written for Python and Javascript.
 
+This README assumes knowledge of k.LAB and semantic modeling. An introduction to both is available as a [technical note](https://docs.integratedmodelling.org/technote/index.html) while more extensive documentation is developed.
+
 ## Installation 
 
 This package is available in Maven Central as `integratedmodelling.org:klab-api`. To add to a Maven project, add
@@ -84,3 +86,7 @@ assert context.getObservation("elevation") instanceof Observation;
 ## License
 
 ## See also
+
+## Contact
+
+For bug reports and feature requests please use the GitHub issues for this project. General questions can be addressed to support@integratedmodelling.org.
