@@ -15,6 +15,38 @@ import org.integratedmodelling.klab.rest.ObservationRequest;
 
 public class Context extends Observation {
 
+    /**
+     * Format for the text output of the dataflow retrieval calls.
+     * 
+     * @author Ferd
+     *
+     */
+    public enum DataflowFormat {
+        /**
+         * Native k.DL source code
+         */
+        KDL,
+        /**
+         * ELK JSON code after layout
+         */
+        ELK,
+        /**
+         * Dot graph - currently unimplemented.
+         */
+        DOT
+    }
+    
+    public enum RasterFormat {
+        /**
+         * Georeferenced TIFF with actual numbers 
+         */
+        GEOTIFF,
+        /**
+         * PNG image using colormap from the models
+         */
+        PNG
+    }
+
     public Context(ObservationReference bean, Engine engine, String session) {
         super(bean, session, engine);
     }
@@ -43,8 +75,7 @@ public class Context extends Observation {
             return new TicketHandler<Estimate>(engine, session, ticket, this);
         }
 
-        throw new KlabIllegalArgumentException(
-                "Cannot build estimate request from arguments: " + Arrays.toString(arguments));
+        throw new KlabIllegalArgumentException("Cannot build estimate request from arguments: " + Arrays.toString(arguments));
     }
 
     /**
@@ -72,8 +103,7 @@ public class Context extends Observation {
             return new TicketHandler<Observation>(engine, session, ticket, this);
         }
 
-        throw new KlabIllegalArgumentException(
-                "Cannot build observation request from arguments: " + Arrays.toString(arguments));
+        throw new KlabIllegalArgumentException("Cannot build observation request from arguments: " + Arrays.toString(arguments));
     }
 
     public Future<Observation> submit(Estimate estimate) {
@@ -88,6 +118,17 @@ public class Context extends Observation {
 
         throw new KlabIllegalStateException("estimate cannot be used");
 
+    }
+
+    /**
+     * Retrieve the current dataflow for the context in the passed format.
+     * 
+     * @param format
+     * @return
+     */
+    public String getDataflow(DataflowFormat format) {
+        // TODO
+        return null;
     }
 
     /**
@@ -120,6 +161,7 @@ public class Context extends Observation {
      * Called after an observation to update the context data and ensure the context has the new
      * observation in its catalog.
      * 
+     * @Non-API should be package private
      * @param ret
      */
     public void updateWith(Observation ret) {
