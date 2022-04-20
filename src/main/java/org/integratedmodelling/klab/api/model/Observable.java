@@ -29,7 +29,7 @@ public class Observable extends SemanticType {
 	}
 
 	public Observable named(String name) {
-		if (name != null) {
+		if (this.name != null) {
 			throw new KlabIllegalStateException("cannot add modifiers more than once");
 		}
 		this.name = name;
@@ -37,7 +37,7 @@ public class Observable extends SemanticType {
 	}
 
 	public Observable range(Range range) {
-		if (unit != null || range != null) {
+		if (this.unit != null || this.range != null) {
 			throw new KlabIllegalStateException("cannot add modifiers more than once");
 		}
 		this.range = range;
@@ -45,7 +45,7 @@ public class Observable extends SemanticType {
 	}
 	
 	public Observable value(Object value) {
-		if (value != null) {
+		if (this.value != null) {
 			throw new KlabIllegalStateException("cannot add modifiers more than once");
 		}
 		this.value = value;
@@ -59,7 +59,7 @@ public class Observable extends SemanticType {
 	 * @return this observable
 	 */
 	public Observable in(String unit) {
-		if (unit != null || range != null) {
+		if (this.unit != null || this.range != null) {
 			throw new KlabIllegalStateException("cannot add modifiers more than once");
 		}
 		this.unit = unit;

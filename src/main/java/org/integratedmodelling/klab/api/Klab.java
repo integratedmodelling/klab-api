@@ -29,6 +29,19 @@ public class Klab {
     Engine engine;
     String session;
 
+    public static enum ExportFormat {
+    	PNG_IMAGE,
+    	GEOTIFF_RASTER,
+    	GEOJSON_FEATURES,
+    	KDL_CODE,
+    	KIM_CODE,
+    	ELK_GRAPH_JSON,
+    	CSV_TABLE,
+    	PDF_DOCUMENT,
+    	EXCEL_TABLE,
+    	WORD_DOCUMENT
+    }
+    
     public static long POLLING_INTERVAL_MS = 2000l;
 
     private Klab(String engineUrl) {
