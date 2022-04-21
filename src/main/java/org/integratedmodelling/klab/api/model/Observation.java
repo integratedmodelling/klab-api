@@ -110,7 +110,7 @@ public class Observation {
 	}
 
 	public Object getScalarValue() {
-		String literalValue = reference.getLiteralValue();
+		String literalValue = reference.getOverallValue();
 		if (literalValue != null) {
 			switch (reference.getValueType()) {
 			case BOOLEAN:
