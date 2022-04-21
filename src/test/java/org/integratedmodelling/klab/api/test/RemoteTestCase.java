@@ -10,10 +10,10 @@ import org.integratedmodelling.klab.exceptions.KlabResourceNotFoundException;
 import org.junit.Before;
 
 public class RemoteTestCase {
-
+	
 	protected String username;
 	protected String password;
-
+	
 	@Before
 	public void readCredentials() {
 		Properties properties = new Properties();
@@ -27,4 +27,5 @@ public class RemoteTestCase {
 		this.username = properties.getProperty("username", "username");
 		this.password = properties.getProperty("password", "password");
 	}
+	
 }

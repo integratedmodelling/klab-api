@@ -107,7 +107,7 @@ public class Engine implements API.PUBLIC {
 		request.put("password", password);
 		Map<?, ?> result = post(AUTHENTICATE_USER, request, Map.class);
 		if (result.containsKey("authorization")) {
-			this.token = result.get("authorization").toString();
+			this.token = result.get("session").toString();
 		}
 		return result.get("session").toString();
 	}

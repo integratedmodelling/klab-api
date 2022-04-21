@@ -4,9 +4,9 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.api.model.Context;
-import org.integratedmodelling.klab.api.model.Estimate;
 import org.integratedmodelling.klab.api.model.Observable;
 import org.integratedmodelling.klab.common.Geometry;
+import org.integratedmodelling.klab.utils.Range;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class SimpleObservation extends RemoteTestCase {
 	
 	@Before
 	public void connect() {
-		this.klab = Klab.create("https://integratedmodelling.org/modeler", username, password);
+		this.klab = Klab.create("https://developers.integratedmodelling.org/modeler", username, password);
 		assert klab.isOnline();
 	}
 	
@@ -33,33 +33,46 @@ public class SimpleObservation extends RemoteTestCase {
 	}
 
 	@Test
-	public void testEstimate() throws Exception {
-		
+	public void testContextObservation() throws Exception {
+
 		/*
 		 * pass a semantic type and a geometry
 		 */
-		Future<Estimate> estimateTask = klab.estimate(
-				Observable.create("earth:Region"),
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
 				Geometry.builder().grid(ruaha, "1 km").years(2010).build());
-		
-		/*
-		 * block until the estimate is ready and retrieve it
+
+		/**
+		 * Retrieve the context and assert it's valid
 		 */
-		Estimate estimate = estimateTask.get();
+		Context context = contextTask.get();
+
+		assert context != null;
+
+	}
+
+	@Test
+	public void testDirectObservation() throws Exception {
 
 		/*
-		 * assess the cost (which will be 0) and if OK, submit the estimate
+		 * pass a semantic type and a geometry + a quality to observe. The quality will
+		 * be available with the (obvious) name in the context
 		 */
-		if (estimate.getCost() < 100000) {
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("geography:Elevation"));
 
-			Future<Context> contextTask = klab.submit(estimate);
-			
-			/**
-			 * Retrieve the context and assert it's valid
-			 */
-			Context context = contextTask.get();
-			
-		}
+		/**
+		 * Retrieve the context and assert it's valid
+		 */
+		Context context = contextTask.get();
+
+		assert context != null;
+		assert context.getObservation("elevation") != null;
+
+		/*
+		 * assert that the value of the elevation is in the standard unit (m) and the
+		 * range is within the expected.
+		 */
+		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange());
 	}
 
 }
