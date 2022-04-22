@@ -1,10 +1,12 @@
 package org.integratedmodelling.klab.api.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import org.integratedmodelling.klab.api.API.PUBLIC.Export;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabIOException;
+import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationReference.ObservationType;
@@ -22,12 +25,10 @@ public class Observation {
 	protected ObservationReference reference;
 	protected Map<String, String> catalogIds = new HashMap<>();
 	protected Map<String, Observation> catalog = new HashMap<>();
-	protected String session;
 	protected Engine engine;
 
-	public Observation(ObservationReference reference, String session, Engine engine) {
+	public Observation(ObservationReference reference, Engine engine) {
 		this.reference = reference;
-		this.session = session;
 		this.engine = engine;
 	}
 
@@ -41,7 +42,17 @@ public class Observation {
 		}
 	}
 
-	public boolean export(Export target, ExportFormat format, File file) {
+	/**
+	 * Export a target to a file, which will be overwritten without warning if it
+	 * exists.
+	 * 
+	 * @param target
+	 * @param format
+	 * @param file
+	 * @param parameters
+	 * @return
+	 */
+	public boolean export(Export target, ExportFormat format, File file, Object... parameters) {
 		boolean ret = false;
 		try (OutputStream stream = new FileOutputStream(file)) {
 			ret = export(target, format, stream);
@@ -53,8 +64,43 @@ public class Observation {
 		return ret;
 	}
 
-	public boolean export(Export target, ExportFormat format, OutputStream output) {
-		return false;
+	/**
+	 * Export a target to a UTF-8 string. Only available if the format is a textual
+	 * one (json, csv or any of the languages).
+	 * 
+	 * @param target
+	 * @param format
+	 * @return the string value, or null if anything has failed.
+	 */
+	public String export(Export target, ExportFormat format) {
+		if (format.isText()) {
+			throw new KlabIllegalArgumentException("illegal export format " + format + " for string export of " + target);
+		}
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			boolean ok = export(target, format, output);
+			if (ok) {
+				return new String(output.toByteArray(), StandardCharsets.UTF_8);
+			}
+		} catch (IOException e) {
+			// just return null
+		}
+		return null;
+	}
+
+	/**
+	 * Export a target to an output stream, expected open and not closed at exit.
+	 * 
+	 * @param target
+	 * @param format
+	 * @param output
+	 * @param parameters
+	 * @return
+	 */
+	public boolean export(Export target, ExportFormat format, OutputStream output, Object... parameters) {
+		if (!format.isExportAllowed(target)) {
+			throw new KlabIllegalArgumentException("export format is incompatible with target");
+		}
+		return engine.streamExport(this.reference.getId(), target, format, output);
 	}
 
 	/**
@@ -70,9 +116,9 @@ public class Observation {
 		if (id != null) {
 			Observation ret = catalog.get(id);
 			if (ret == null) {
-				ObservationReference ref = engine.getObservation(id, session);
+				ObservationReference ref = engine.getObservation(id);
 				if (ref != null && ref.getId() != null) {
-					ret = new Observation(ref, session, engine);
+					ret = new Observation(ref, engine);
 					catalog.put(id, ret);
 				}
 			}
@@ -109,6 +155,12 @@ public class Observation {
 				this.reference.getDataSummary().getMaxValue());
 	}
 
+	/**
+	 * If the observation can be represented by a single scalar value, return it,
+	 * otherwise return null.
+	 * 
+	 * @return
+	 */
 	public Object getScalarValue() {
 		String literalValue = reference.getOverallValue();
 		if (literalValue != null) {
@@ -117,6 +169,7 @@ public class Observation {
 				return Boolean.parseBoolean(literalValue);
 			case NUMBER:
 				return Double.parseDouble(literalValue);
+			// TODO handle categories
 			default:
 				break;
 			}

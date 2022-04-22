@@ -2,8 +2,11 @@ package org.integratedmodelling.klab.api.test;
 
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.API.PUBLIC.Export;
+import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.api.model.Context;
 import org.integratedmodelling.klab.api.model.Estimate;
@@ -147,6 +150,20 @@ public class LocalTestCase {
 		 */
 		assert context.getObservation("elevation") instanceof Observation;
 
+	}
+	
+	@Test
+	public void testImageExport() throws Exception {
+		
+		Context context = klab
+				.submit(Observable.create("earth:Region"), Geometry.builder().grid(ruaha, "1 km").years(2010).build())
+				.get();
+
+		assert context != null;
+		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
+		File outfile = File.createTempFile("ruaha", ".png");
+		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "800");
+		// TODO read the image and check it - size should be around 
 	}
 
 	@Test

@@ -28,16 +28,14 @@ import org.integratedmodelling.klab.rest.TicketResponse.Ticket;
 public class TicketHandler<T> implements Future<T> {
 
     private Engine engine;
-    private String sessionId;
     private String ticketId;
     private Context context;
     private AtomicReference<T> result = new AtomicReference<>();
     private boolean cancelled;
 
-    public TicketHandler(Engine engine, String sessionId, String ticketId, Context context) {
+    public TicketHandler(Engine engine, String ticketId, Context context) {
         this.engine = engine;
         this.ticketId = ticketId;
-        this.sessionId = sessionId;
         this.context = context;
     }
 
@@ -105,7 +103,7 @@ public class TicketHandler<T> implements Future<T> {
     }
 
     private T poll(Engine engine) {
-        TicketResponse.Ticket ticket = engine.getTicket(ticketId, sessionId);
+        TicketResponse.Ticket ticket = engine.getTicket(ticketId);
         if (ticket == null || ticket.getStatus() == Status.ERROR || ticket.getId() == null) {
             cancel(true);
             return null;
@@ -137,8 +135,8 @@ public class TicketHandler<T> implements Future<T> {
     private T makeObservation(Ticket ticket) {
         if (ticket.getData().containsKey("artifacts")) {
             for (String oid : ticket.getData().get("artifacts").split(",")) {
-                ObservationReference bean = engine.getObservation(oid, sessionId);
-                Observation ret = new Observation(bean, sessionId, engine);
+                ObservationReference bean = engine.getObservation(oid);
+                Observation ret = new Observation(bean, engine);
                 if (context != null) {
                     context.updateWith(ret);
                 }
@@ -150,8 +148,8 @@ public class TicketHandler<T> implements Future<T> {
 
     @SuppressWarnings("unchecked")
     private T makeContext(Ticket ticket) {
-        ObservationReference bean = engine.getObservation(ticket.getData().get("context"), sessionId);
-        Context context = new Context(bean, engine, sessionId);
+        ObservationReference bean = engine.getObservation(ticket.getData().get("context"));
+        Context context = new Context(bean, engine);
         if (ticket.getData().containsKey("artifacts")) {
             for (String oid : ticket.getData().get("artifacts").split(",")) {
                 context.notifyObservation(oid);

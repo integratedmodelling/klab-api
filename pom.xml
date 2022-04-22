@@ -1,12 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.integratedmodelling</groupId>
 	<artifactId>klab-api</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>k.LAB API Java client</name>
-	
+
 	<licenses>
 		<license>
 			<name>GNU Affero General Public License (AGPL) version 3.0</name>
@@ -28,7 +26,7 @@
 		<developerConnection>scm:git:https://github.com/integratedmodelling/klab-api</developerConnection>
 		<url>https://github.com/integratedmodelling/klab-api.git</url>
 	</scm>
-	
+
 	<organization>
 		<name>integratedmodelling.org</name>
 		<url>http://www.integratedmodelling.org</url>
@@ -61,15 +59,18 @@
 		<dependency>
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-java</artifactId>
-			<version>3.11.09</version>
-			<classifier>standalone</classifier>
+			<version>3.13.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.konghq</groupId>
 			<artifactId>unirest-objectmapper-jackson</artifactId>
-			<version>3.11.09</version>
-			<classifier>standalone</classifier>
+			<version>3.13.6</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+	</dependencies>
 
 </project>

@@ -34,8 +34,8 @@ public class Context extends Observation {
 	IGeometry injectedGeometry;
 	Observable injectedDirectObservable;
 
-	public Context(ObservationReference bean, Engine engine, String session) {
-		super(bean, session, engine);
+	public Context(ObservationReference bean, Engine engine) {
+		super(bean, engine);
 	}
 
 	/**
@@ -57,9 +57,9 @@ public class Context extends Observation {
 			}
 		}
 
-		String ticket = engine.submitObservation(request, this.session);
+		String ticket = engine.submitObservation(request);
 		if (ticket != null) {
-			return new TicketHandler<Estimate>(engine, session, ticket, this);
+			return new TicketHandler<Estimate>(engine, ticket, this);
 		}
 
 		throw new KlabIllegalArgumentException(
@@ -85,10 +85,10 @@ public class Context extends Observation {
 			}
 		}
 
-		String ticket = engine.submitObservation(request, this.session);
+		String ticket = engine.submitObservation(request);
 		if (ticket != null) {
 			// TODO updates the context bean when observation arrives!
-			return new TicketHandler<Observation>(engine, session, ticket, this);
+			return new TicketHandler<Observation>(engine, ticket, this);
 		}
 
 		throw new KlabIllegalArgumentException(
@@ -99,10 +99,10 @@ public class Context extends Observation {
 		if (estimate.getTicketType() != Type.ObservationEstimate) {
 			throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
 		}
-		String ticket = engine.submitEstimate(estimate.getEstimateId(), this.session);
+		String ticket = engine.submitEstimate(estimate.getEstimateId());
 		if (ticket != null) {
 			// the handler updates the context catalog when the observation arrives
-			return new TicketHandler<Observation>(engine, session, ticket, this);
+			return new TicketHandler<Observation>(engine, ticket, this);
 		}
 
 		throw new KlabIllegalStateException("estimate cannot be used");
@@ -189,7 +189,7 @@ public class Context extends Observation {
 	 * @param ret
 	 */
 	public void updateWith(Observation ret) {
-		this.reference = engine.getObservation(reference.getId(), session);
+		this.reference = engine.getObservation(reference.getId());
 		for (String name : this.reference.getChildIds().keySet()) {
 			if (ret.reference.getId().equals(this.reference.getChildIds().get(name))) {
 				catalogIds.put(name, ret.reference.getId());

@@ -1,8 +1,11 @@
 package org.integratedmodelling.klab.api;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.API.PUBLIC.Export;
 import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.model.Context;
 import org.integratedmodelling.klab.api.model.Estimate;
@@ -29,9 +32,53 @@ public class Klab {
 	Engine engine;
 	String session;
 
+	/**
+	 * Each export format carries the actual media type for content negotiation and the export items it's admitted for. 
+	 * Exporting may still generate errors if the specific observation it's requested for does not admit the requested
+	 * view.
+	 * 
+	 * @author Ferd
+	 *
+	 */
 	public static enum ExportFormat {
-		PNG_IMAGE, GEOTIFF_RASTER, GEOJSON_FEATURES, KDL_CODE, KIM_CODE, ELK_GRAPH_JSON, CSV_TABLE, PDF_DOCUMENT,
-		EXCEL_TABLE, WORD_DOCUMENT
+
+		PNG_IMAGE("image/png", Export.DATA, Export.LEGEND, Export.VIEW), 
+		GEOTIFF_RASTER("image/tiff", Export.DATA),
+		GEOJSON_FEATURES("application/json", Export.DATA, Export.STRUCTURE), 
+		KDL_CODE("text/plain", Export.DATAFLOW),
+		KIM_CODE("text/plain", Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
+		ELK_GRAPH_JSON("application/json", Export.DATAFLOW, Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
+		CSV_TABLE("text/csv", Export.VIEW), 
+		PDF_DOCUMENT("application/pdf", Export.REPORT),
+		EXCEL_TABLE("application/vnd.ms-excel", Export.VIEW),
+		WORD_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document", Export.REPORT);
+
+		String mediaType;
+		Set<Export> allowedExports = EnumSet.noneOf(Export.class);
+
+		ExportFormat(String mediaType, Export... allowed) {
+			this.mediaType = mediaType;
+			if (allowed != null) {
+				for (Export export : allowed) {
+					allowedExports.add(export);
+				}
+			}
+		}
+		
+		public String getMediaType() {
+			return mediaType;
+		}
+		
+		public boolean isExportAllowed(Export export) {
+			return this.allowedExports.contains(export);
+		}
+
+		public boolean isText() {
+			return "text/plain".equals(this.mediaType) 
+					|| "application/json".equals(this.mediaType) 
+					|| "text/csv".equals(this.mediaType);
+		}
+
 	}
 
 	public static long POLLING_INTERVAL_MS = 2000l;
@@ -62,8 +109,8 @@ public class Klab {
 	 * @param engineUrl
 	 * @return
 	 */
-	public static Klab create(String localEngineUrl, String username, String password) {
-		return new Klab(localEngineUrl, username, password);
+	public static Klab create(String remoteEngineUrl, String username, String password) {
+		return new Klab(remoteEngineUrl, username, password);
 	}
 
 	/**
@@ -122,9 +169,9 @@ public class Klab {
 		}
 
 		if (request.getGeometry() != null && request.getContextType() != null) {
-			String ticket = engine.submitContext(request, this.session);
+			String ticket = engine.submitContext(request);
 			if (ticket != null) {
-				return new TicketHandler<Estimate>(engine, session, ticket, null);
+				return new TicketHandler<Estimate>(engine, ticket, null);
 			}
 		}
 
@@ -139,13 +186,13 @@ public class Klab {
 	 * @return
 	 */
 	public Future<Context> submit(Estimate estimate) {
-		
+
 		if (estimate.getTicketType() != Type.ContextEstimate) {
 			throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
 		}
-		String ticket = engine.submitEstimate(estimate.getEstimateId(), this.session);
+		String ticket = engine.submitEstimate(estimate.getEstimateId());
 		if (ticket != null) {
-			return new TicketHandler<Context>(engine, session, ticket, null);
+			return new TicketHandler<Context>(engine, ticket, null);
 		}
 
 		throw new KlabIllegalStateException("estimate cannot be used");
@@ -166,7 +213,7 @@ public class Klab {
 	 * @return
 	 */
 	public Future<Context> submit(Observable contextType, IGeometry geometry, Object... arguments) {
-		
+
 		ContextRequest request = new ContextRequest();
 		request.setContextType(contextType.toString());
 		request.setGeometry(geometry.encode());
@@ -180,9 +227,9 @@ public class Klab {
 		}
 
 		if (request.getGeometry() != null && request.getContextType() != null) {
-			String ticket = engine.submitContext(request, this.session);
+			String ticket = engine.submitContext(request);
 			if (ticket != null) {
-				return new TicketHandler<Context>(engine, session, ticket, null);
+				return new TicketHandler<Context>(engine, ticket, null);
 			}
 		}
 

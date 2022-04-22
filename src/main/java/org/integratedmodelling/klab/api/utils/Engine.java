@@ -1,9 +1,15 @@
 package org.integratedmodelling.klab.api.utils;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.IOUtils;
 import org.integratedmodelling.klab.api.API;
+import org.integratedmodelling.klab.api.Klab.ExportFormat;
+import org.integratedmodelling.klab.exceptions.KlabIOException;
 import org.integratedmodelling.klab.rest.ContextRequest;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationRequest;
@@ -49,9 +55,6 @@ public class Engine implements API.PUBLIC {
 			}
 		}
 
-		// TODO handle different responses if the Accept header has been modified
-		// Should pass a String class for text or an InputStream class for streamed
-		// data.
 		return (T) Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType)
 				.header("Authorization", token).body(request).asObject(responseType).getBody();
 	}
@@ -106,10 +109,11 @@ public class Engine implements API.PUBLIC {
 		request.put("username", username);
 		request.put("password", password);
 		Map<?, ?> result = post(AUTHENTICATE_USER, request, Map.class);
-		if (result.containsKey("authorization")) {
+		if (result.containsKey("session")) {
+			// TODO check if we need to remember the user-bound authorization token
 			this.token = result.get("session").toString();
 		}
-		return result.get("session").toString();
+		return this.token;
 	}
 
 	/**
@@ -153,9 +157,8 @@ public class Engine implements API.PUBLIC {
 	 * @param request
 	 * @return
 	 */
-	public String submitContext(ContextRequest request, String sessionId) {
-		TicketResponse.Ticket response = post(CREATE_CONTEXT, request, TicketResponse.Ticket.class, P_SESSION,
-				sessionId);
+	public String submitContext(ContextRequest request) {
+		TicketResponse.Ticket response = post(CREATE_CONTEXT, request, TicketResponse.Ticket.class);
 		if (response != null) {
 			return response.getId();
 		}
@@ -168,9 +171,8 @@ public class Engine implements API.PUBLIC {
 	 * @param request
 	 * @return
 	 */
-	public String submitObservation(ObservationRequest request, String sessionId) {
-		TicketResponse.Ticket response = post(
-				OBSERVE_IN_CONTEXT.replace(P_SESSION, sessionId).replace(P_CONTEXT, request.getContextId()), request,
+	public String submitObservation(ObservationRequest request) {
+		TicketResponse.Ticket response = post(OBSERVE_IN_CONTEXT.replace(P_CONTEXT, request.getContextId()), request,
 				TicketResponse.Ticket.class);
 		if (response != null && response.getId() != null) {
 			return response.getId();
@@ -178,24 +180,50 @@ public class Engine implements API.PUBLIC {
 		return null;
 	}
 
-	public String submitEstimate(String estimateId, String sessionId) {
-		Ticket response = get(SUBMIT_ESTIMATE.replace(P_SESSION, sessionId).replace(P_ESTIMATE, estimateId),
-				TicketResponse.Ticket.class);
+	public String submitEstimate(String estimateId) {
+		Ticket response = get(SUBMIT_ESTIMATE.replace(P_ESTIMATE, estimateId), TicketResponse.Ticket.class);
 		if (response != null && response.getId() != null) {
 			return response.getId();
 		}
 		return null;
 	}
 
-	public Ticket getTicket(String ticketId, String sessionId) {
-		Ticket ret = get(TICKET_INFO.replace(P_SESSION, sessionId).replace(P_TICKET, ticketId),
-				TicketResponse.Ticket.class);
+	public Ticket getTicket(String ticketId) {
+		Ticket ret = get(TICKET_INFO.replace(P_TICKET, ticketId), TicketResponse.Ticket.class);
 		return (ret == null || ret.getId() == null) ? null : ret;
 	}
 
-	public ObservationReference getObservation(String artifactId, String sessionId) {
-		ObservationReference ret = get(EXPORT_DATA.replace(P_EXPORT, Export.STRUCTURE.name().toLowerCase())
-				.replace(P_SESSION, sessionId).replace(P_OBSERVATION, artifactId), ObservationReference.class);
+	public ObservationReference getObservation(String artifactId) {
+		ObservationReference ret = get(
+				EXPORT_DATA.replace(P_EXPORT, Export.STRUCTURE.name().toLowerCase()).replace(P_OBSERVATION, artifactId),
+				ObservationReference.class);
 		return (ret == null || ret.getId() == null) ? null : ret;
+	}
+
+	public boolean streamExport(String observationId, Export target, ExportFormat format, final OutputStream output,
+			Object... parameters) {
+
+		String url = makeUrl(
+				EXPORT_DATA.replace(P_EXPORT, target.name().toLowerCase()).replace(P_OBSERVATION, observationId),
+				parameters);
+		try {
+			
+			Unirest.get(url).accept(format.getMediaType()).header("Authorization", token)
+					.thenConsume(response -> {
+						try {
+							response.getContent().transferTo(output);
+						} catch (IOException e) {
+							// uncheck
+							throw new KlabIOException(e);
+						}
+					});
+			
+			return true;
+					
+		} catch (Throwable t) {
+			// just return false
+		}
+
+		return false;
 	}
 }
