@@ -24,14 +24,16 @@ public class LocalTestCase {
 	 * A square piece of Tanzania in which elevation values (in NASA STRM 90m DEM)
 	 * are between 271 and 2875 m
 	 */
-	private static String ruaha = "EPSG:4326 POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))";
+	private static String ruaha = "EPSG:4326 POLYGON ((36.411867526247384 -9.402230077083843, 33.363313628958174 -9.402230077083843, 33.363313628958174 -7.026333540991345, 36.411867526247384 -7.026333540991345, 36.411867526247384 -9.402230077083843))";
 	private Klab klab;
 
 	@Before
 	public void connect() {
-		this.klab = Klab.create();
-		if (!klab.isOnline()) {
-			fail("engine is offline: aborting tests");
+		if (this.klab == null) {
+			this.klab = Klab.create();
+			if (!klab.isOnline()) {
+				fail("engine is offline: aborting tests");
+			}
 		}
 	}
 
@@ -75,7 +77,8 @@ public class LocalTestCase {
 		 * assert that the value of the elevation is in the standard unit (m) and the
 		 * range is within the expected.
 		 */
-		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange());
+		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange())
+				&& context.getObservation("elevation").getDataRange().contains(Range.create(500, 2500));
 	}
 
 	@Test
@@ -143,7 +146,7 @@ public class LocalTestCase {
 		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 
 		assert elevation != null;
-		assert Range.create(0, 3000).contains(elevation.getDataRange());
+		assert elevation.getDataRange().contains(Range.create(500, 2500));
 
 		/*
 		 * ensure the context has been updated with the new observation
@@ -151,10 +154,10 @@ public class LocalTestCase {
 		assert context.getObservation("elevation") instanceof Observation;
 
 	}
-	
+
 	@Test
 	public void testImageExport() throws Exception {
-		
+
 		Context context = klab
 				.submit(Observable.create("earth:Region"), Geometry.builder().grid(ruaha, "1 km").years(2010).build())
 				.get();
@@ -162,8 +165,9 @@ public class LocalTestCase {
 		assert context != null;
 		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 		File outfile = File.createTempFile("ruaha", ".png");
-		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "800");
-		// TODO read the image and check it - size should be around 
+		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "900");
+		// TODO read the image into an outputstream and check it for size and content -
+		// currently fails because of weird crop bug (not happening in explorer)
 	}
 
 	@Test

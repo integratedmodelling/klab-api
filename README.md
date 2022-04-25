@@ -74,7 +74,7 @@ Context context = klab
 Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 
 // in the passed context, the observation of elevation should be between 270 and 2800 m
-assert Range.create(0, 3000).contains(elevation.getDataRange());
+assert elevation.getDataRange().contains(Range.create(500, 2500));
 
 /*
  * ensure the context has been updated with the new observation

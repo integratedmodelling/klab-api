@@ -55,7 +55,7 @@ public class Observation {
 	public boolean export(Export target, ExportFormat format, File file, Object... parameters) {
 		boolean ret = false;
 		try (OutputStream stream = new FileOutputStream(file)) {
-			ret = export(target, format, stream);
+			ret = export(target, format, stream, parameters);
 		} catch (FileNotFoundException e) {
 			throw new KlabIllegalStateException(e.getMessage());
 		} catch (IOException e) {
