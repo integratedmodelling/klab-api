@@ -76,7 +76,7 @@ public class Engine implements API.PUBLIC {
 		String parms = "";
 		if (parameters != null) {
 			for (int i = 0; i < parameters.length; i++) {
-				parms += (parms.isEmpty() ? "" : "&" + parameters[i] + "=" + parameters[++i]);
+				parms += (parms.isEmpty() ? "" : "&") + parameters[i] + "=" + parameters[++i];
 			}
 		}
 		return this.url + endpoint + (parms.isEmpty() ? "" : ("?" + parms));

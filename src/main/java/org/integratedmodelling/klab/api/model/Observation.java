@@ -100,7 +100,7 @@ public class Observation {
 		if (!format.isExportAllowed(target)) {
 			throw new KlabIllegalArgumentException("export format is incompatible with target");
 		}
-		return engine.streamExport(this.reference.getId(), target, format, output);
+		return engine.streamExport(this.reference.getId(), target, format, output, parameters);
 	}
 
 	/**
