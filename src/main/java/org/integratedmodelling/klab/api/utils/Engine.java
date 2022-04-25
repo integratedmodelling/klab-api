@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.io.IOUtils;
 import org.integratedmodelling.klab.api.API;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.exceptions.KlabIOException;
