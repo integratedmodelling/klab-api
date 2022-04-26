@@ -73,7 +73,7 @@ public class Observation {
 	 * @return the string value, or null if anything has failed.
 	 */
 	public String export(Export target, ExportFormat format) {
-		if (format.isText()) {
+		if (!format.isText()) {
 			throw new KlabIllegalArgumentException("illegal export format " + format + " for string export of " + target);
 		}
 		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {

@@ -80,7 +80,33 @@ public class LocalTestCase {
 		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange())
 				&& context.getObservation("elevation").getDataRange().contains(Range.create(500, 2500));
 	}
+	
+	@Test
+	public void testSpatialObjects() throws Exception {
 
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+
+		/**
+		 * Retrieve the context and assert it's valid
+		 */
+		Context context = contextTask.get();
+		Observation towns = context.submit(Observable.create("infrastructure:Town")).get();
+		
+		System.out.println(towns.export(Export.DATA, ExportFormat.GEOJSON_FEATURES));;
+		
+		assert towns != null;
+	}
+	
+	@Test
+	public void testSpatialObjectsInCatalog() throws Exception {
+
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("infrastructure:Town"));
+		
+		assert contextTask.get().getObservation("town") != null;
+	}
+	
 	@Test
 	public void testDirectNamedObservation() throws Exception {
 
@@ -166,6 +192,7 @@ public class LocalTestCase {
 		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 		File outfile = File.createTempFile("ruaha", ".png");
 		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "900");
+		System.out.println(elevation.export(Export.LEGEND, ExportFormat.JSON_CODE)); 
 		// TODO read the image into an outputstream and check it for size and content -
 		// currently fails because of weird crop bug (not happening in explorer)
 	}

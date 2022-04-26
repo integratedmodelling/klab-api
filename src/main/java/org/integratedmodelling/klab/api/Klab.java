@@ -44,7 +44,8 @@ public class Klab {
 
 		PNG_IMAGE("image/png", Export.DATA, Export.LEGEND, Export.VIEW), 
 		GEOTIFF_RASTER("image/tiff", Export.DATA),
-		GEOJSON_FEATURES("application/json", Export.DATA, Export.STRUCTURE), 
+		GEOJSON_FEATURES("application/json", Export.DATA), 
+		JSON_CODE("application/json", Export.LEGEND, Export.STRUCTURE),
 		KDL_CODE("text/plain", Export.DATAFLOW),
 		KIM_CODE("text/plain", Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
 		ELK_GRAPH_JSON("application/json", Export.DATAFLOW, Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
