@@ -17,9 +17,9 @@ public interface Observation {
 
 	/**
 	 * Return the set of fundamental semantic types for this observation. These
-	 * don't get the observable semantics (returned in string form by
-	 * {@link #getObservable()} which requires a connected engine/reasoner service
-	 * to interpret, but are sufficient for basic inference and type checking.
+	 * don't get the full observable semantics (returned in string form by
+	 * {@link #getObservable()}) which requires a connected engine/reasoner service
+	 * to interpret, but is sufficient for basic inference and type checking.
 	 * 
 	 * @return a set of fundamental semantic types, one for the main observable with
 	 *         potential qualifiers.
@@ -27,20 +27,23 @@ public interface Observation {
 	Set<IKimConcept.Type> getSemantics();
 
 	/**
-	 * Return the string representation of the full observation semantics.
+	 * Return an {@link Observable} wrapping the string representation of the full
+	 * observation semantics.
 	 * 
 	 * @return
 	 */
 	Observable getObservable();
 
 	/**
-	 * A general type checking method that can take a parameter of one of several types:
+	 * A general type checking method that can take a parameter of one of several
+	 * enum types:
 	 * <ul>
 	 * <li>{@link DataRepresentation} to check the data type;</li>
-	 * <li>{@link SpatialRepresentation} to check the type of spatial semantics;</li>
-	 * <li>{@link TemporalRepresentation} to check the temporal extension;</li>
-	 * <li>{@link IKimConcept.Type} to check the fundamental semantics;</li>
+	 * <li>{@link SpatialRepresentation} to check the type of spatial extent;</li>
+	 * <li>{@link TemporalRepresentation} to check the temporal extent;</li>
+	 * <li>{@link IKimConcept.Type} to check the fundamental semantics.</li>
 	 * </ul>
+	 * 
 	 * @param a type to compare the observation with
 	 * @return true if the type describes the observation
 	 */
@@ -59,8 +62,9 @@ public interface Observation {
 	boolean export(Export target, ExportFormat format, File file, Object... parameters);
 
 	/**
-	 * Export a target to a UTF-8 string. Only available if the format is a textual
-	 * one (json, csv or any of the languages).
+	 * Export a target to a UTF-8 string. Only available if the target/format
+	 * combination results in a textual output (json, csv or any of the k.LAB
+	 * languages).
 	 * 
 	 * @param target
 	 * @param format
@@ -69,7 +73,8 @@ public interface Observation {
 	String export(Export target, ExportFormat format);
 
 	/**
-	 * Export a target to an output stream, expected open and not closed at exit.
+	 * Export a target to an output stream, expected to be open and not closed on
+	 * exit.
 	 * 
 	 * @param target
 	 * @param format
@@ -102,8 +107,8 @@ public interface Observation {
 
 	/**
 	 * The range of the data in a state observation. If the observation is not a
-	 * state, an exception is thrown. If it's a state but not numeric, the result is
-	 * undefined.
+	 * numeric state, an exception is thrown. If it's a state but not numeric or
+	 * number-backed , the result is undefined.
 	 * 
 	 * @return
 	 */
