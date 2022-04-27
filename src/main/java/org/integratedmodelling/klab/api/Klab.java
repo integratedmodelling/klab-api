@@ -175,6 +175,7 @@ public class Klab {
 	 *                    the context (if passed, the task will finish after all
 	 *                    have been computed). Strings will be interpreted as
 	 *                    scenario URNs.
+	 * 
 	 * @return an estimate future; call get() to wait until the estimate is ready
 	 *         and retrieve it.
 	 */
@@ -204,7 +205,8 @@ public class Klab {
 	}
 
 	/**
-	 * Accept a previously obtained estimate and retrieve the correspondent context.
+	 * Accept a previously obtained estimate and retrieve a task computing the
+	 * correspondent context.
 	 * 
 	 * @param estimate
 	 * @return
@@ -214,7 +216,7 @@ public class Klab {
 		if (((EstimateImpl) estimate).getTicketType() != Type.ContextEstimate) {
 			throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
 		}
-		String ticket = engine.submitEstimate(((EstimateImpl)estimate).getEstimateId());
+		String ticket = engine.submitEstimate(((EstimateImpl) estimate).getEstimateId());
 		if (ticket != null) {
 			return new TicketHandler<Context>(engine, ticket, null);
 		}

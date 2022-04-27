@@ -4,6 +4,7 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.api.data.IGeometry;
+import org.integratedmodelling.klab.common.GeometryBuilder;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabRemoteException;
 
@@ -14,7 +15,21 @@ public interface Context extends Observation {
 	 * create an estimate of the cost associated with the observation. Will also
 	 * include any further observation hierarchy created by calling the with()
 	 * functions in the estimate returned. Computing the estimate may involve
-	 * observations and inference, so a future is returned.
+	 * observations and inference, so a future is returned. If a direct observable
+	 * (subject, event or relationship) is used, the result will be a group (created
+	 * by resolving an instantiator) unless and a geometry is passed. In the latter
+	 * case, the observation will be of the object built and will contain the result
+	 * of any resolution (potentially none).
+	 * 
+	 * @param observable the observable for the observation desired
+	 * @param arguments  other observables (to make more than one observation in one
+	 *                   call, limited to qualities), a geometry if the observable
+	 *                   is a direct observation (must include suitable time if the
+	 *                   observable is an event), or any strings which will be
+	 *                   interpreted as scenario URNs to affect the resolution at
+	 *                   the engine side. If a relationship is built, two subject
+	 *                   observations must also be passed, interpreted as source and
+	 *                   destination in order of call.
 	 * 
 	 * @return the future observation being computed on the backend.
 	 */
@@ -23,7 +38,21 @@ public interface Context extends Observation {
 	/**
 	 * Call with a concept (and geometry if the observable is not a quality) to
 	 * create an observation in this context. Will also include any further
-	 * observation hierarchy created by calling the with() functions.
+	 * observation hierarchy created by calling the with() functions. If a direct
+	 * observable (subject, event or relationship) is used, the result will be a
+	 * group (created by resolving an instantiator) unless and a geometry is passed.
+	 * In the latter case, the observation will be of the object built and will
+	 * contain the result of any resolution (potentially none).
+	 * 
+	 * @param observable the observable for the observation desired
+	 * @param arguments  other observables (to make more than one observation in one
+	 *                   call, limited to qualities), a geometry if the observable
+	 *                   is a direct observation (must include suitable time if the
+	 *                   observable is an event), or any strings which will be
+	 *                   interpreted as scenario URNs to affect the resolution at
+	 *                   the engine side. If a relationship is built, two subject
+	 *                   observations must also be passed, interpreted as source and
+	 *                   destination in order of call.
 	 * 
 	 * @return the future observation being computed on the backend.
 	 */
@@ -88,23 +117,5 @@ public interface Context extends Observation {
 	 * @return this same context for chaining calls.
 	 */
 	Context with(Observable concept, Object value);
-
-	/**
-	 * Create a future sub-object which can be used as an inner-level context.
-	 * Observations made on the resulting context will only concern the result
-	 * object, which will appear as a child of the main context.
-	 * <p>
-	 * If an observation made through an instantiation needs to be used as a context
-	 * for further observation, extract the observation and use
-	 * {@link Observation#promote()} to turn it into a context.
-	 * 
-	 * @param subject  the observable for the sub-object. It must be explicitly
-	 *                 named and be of a direct observable (i.e. not a quality or
-	 *                 process), usually a subject.
-	 * @param geometry a geometry for the resulting object. It does not need to
-	 *                 agree in any way with the geometry of the main context.
-	 * @return the future context.
-	 */
-	Future<Context> with(Observable subject, IGeometry geometry);
 
 }
