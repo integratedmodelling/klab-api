@@ -82,6 +82,26 @@ public class LocalTestCase {
 	}
 	
 	@Test
+	public void testCategories() throws Exception {
+
+		/*
+		 * pass a semantic type and a geometry + a quality to observe. The quality will
+		 * be available with the (obvious) name in the context
+		 */
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("landcover:LandCoverType").named("landcover"));
+
+		/**
+		 * Retrieve the context and assert it's valid
+		 */
+		Context context = contextTask.get();
+
+		assert context != null;
+		Observation landcover = context.getObservation("landcover");
+		assert landcover != null;
+	}
+	
+	@Test
 	public void testSpatialObjects() throws Exception {
 
 		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),

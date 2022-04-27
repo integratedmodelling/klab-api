@@ -33,8 +33,9 @@ public class Klab {
 	String session;
 
 	/**
-	 * Each export format carries the actual media type for content negotiation and the export items it's admitted for. 
-	 * Exporting may still generate errors if the specific observation it's requested for does not admit the requested
+	 * Each export format carries the actual media type for content negotiation and
+	 * the export items it's admitted for. Exporting may still generate errors if
+	 * the specific observation it's requested for does not admit the requested
 	 * view.
 	 * 
 	 * @author Ferd
@@ -42,15 +43,12 @@ public class Klab {
 	 */
 	public static enum ExportFormat {
 
-		PNG_IMAGE("image/png", Export.DATA, Export.LEGEND, Export.VIEW), 
-		GEOTIFF_RASTER("image/tiff", Export.DATA),
-		GEOJSON_FEATURES("application/json", Export.DATA), 
-		JSON_CODE("application/json", Export.LEGEND, Export.STRUCTURE),
-		KDL_CODE("text/plain", Export.DATAFLOW),
+		PNG_IMAGE("image/png", Export.DATA, Export.LEGEND, Export.VIEW), GEOTIFF_RASTER("image/tiff", Export.DATA),
+		GEOJSON_FEATURES("application/json", Export.DATA),
+		JSON_CODE("application/json", Export.LEGEND, Export.STRUCTURE), KDL_CODE("text/plain", Export.DATAFLOW),
 		KIM_CODE("text/plain", Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
 		ELK_GRAPH_JSON("application/json", Export.DATAFLOW, Export.PROVENANCE_FULL, Export.PROVENANCE_SIMPLIFIED),
-		CSV_TABLE("text/csv", Export.VIEW), 
-		PDF_DOCUMENT("application/pdf", Export.REPORT),
+		CSV_TABLE("text/csv", Export.VIEW), PDF_DOCUMENT("application/pdf", Export.REPORT),
 		EXCEL_TABLE("application/vnd.ms-excel", Export.VIEW),
 		WORD_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document", Export.REPORT);
 
@@ -65,21 +63,40 @@ public class Klab {
 				}
 			}
 		}
-		
+
 		public String getMediaType() {
 			return mediaType;
 		}
-		
+
 		public boolean isExportAllowed(Export export) {
 			return this.allowedExports.contains(export);
 		}
 
 		public boolean isText() {
-			return "text/plain".equals(this.mediaType) 
-					|| "application/json".equals(this.mediaType) 
+			return "text/plain".equals(this.mediaType) || "application/json".equals(this.mediaType)
 					|| "text/csv".equals(this.mediaType);
 		}
+	}
 
+	/**
+	 * The type of data that can be extracted from an observation. Used with states;
+	 * any other observation will return NONE. This is the low-level data
+	 * representation for bridging to other APIs; the basic semantic types hold more
+	 * information (accessible through getSemantics())
+	 * 
+	 * @author Ferd
+	 *
+	 */
+	public static enum DataRepresentation {
+		VOID, BOOLEAN, NUMERIC, CATEGORICAL
+	}
+
+	public static enum SpatialRepresentation {
+		NONE, SHAPE, GRID, FEATURES
+	}
+
+	public static enum TemporalRepresentation {
+		NONE, PERIOD, TIMESERIES
 	}
 
 	public static long POLLING_INTERVAL_MS = 2000l;

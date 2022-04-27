@@ -9,13 +9,19 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.integratedmodelling.kim.api.IKimConcept;
 import org.integratedmodelling.klab.api.API.PUBLIC.Export;
+import org.integratedmodelling.klab.api.Klab.DataRepresentation;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
+import org.integratedmodelling.klab.api.Klab.SpatialRepresentation;
+import org.integratedmodelling.klab.api.Klab.TemporalRepresentation;
 import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabIOException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
+import org.integratedmodelling.klab.exceptions.KlabRemoteException;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationReference.ObservationType;
 import org.integratedmodelling.klab.utils.Range;
@@ -32,6 +38,43 @@ public class Observation {
 		this.engine = engine;
 	}
 
+	/**
+	 * Return the set of fundamental semantic types for this observation. These
+	 * don't get the observable semantics (returned in string form by
+	 * {@link #getObservable()} which requires a connected engine/reasoner service
+	 * to interpret, but are sufficient for basic inference and type checking.
+	 * 
+	 * @return a set of fundamental semantic types, one for the main observable with
+	 *         potential qualifiers.
+	 */
+	public Set<IKimConcept.Type> getSemantics() {
+		return reference.getSemantics();
+	}
+
+	/**
+	 * Return the string representation of the full observation semantics.
+	 * 
+	 * @return
+	 */
+	public Observable getObservable() {
+		return new Observable(reference.getObservable());
+	}
+
+	/**
+	 * A general type checking method that can take a parameter of one of several types:
+	 * <ul>
+	 * <li>{@link DataRepresentation} to check the data type;</li>
+	 * <li>{@link SpatialRepresentation} to check the type of spatial semantics;</li>
+	 * <li>{@link TemporalRepresentation} to check the temporal extension;</li>
+	 * <li>{@link IKimConcept.Type} to check the fundamental semantics;</li>
+	 * </ul>
+	 * @param a type to compare the observation with
+	 * @return true if the type describes the observation
+	 */
+	public boolean is(Object type) {
+		return false;
+	}
+	
 	public void notifyObservation(String id) {
 		for (String name : this.reference.getChildIds().keySet()) {
 			if (id.equals(this.reference.getChildIds().get(name))) {
@@ -74,7 +117,8 @@ public class Observation {
 	 */
 	public String export(Export target, ExportFormat format) {
 		if (!format.isText()) {
-			throw new KlabIllegalArgumentException("illegal export format " + format + " for string export of " + target);
+			throw new KlabIllegalArgumentException(
+					"illegal export format " + format + " for string export of " + target);
 		}
 		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 			boolean ok = export(target, format, output);
@@ -120,6 +164,8 @@ public class Observation {
 				if (ref != null && ref.getId() != null) {
 					ret = new Observation(ref, engine);
 					catalog.put(id, ret);
+				} else {
+					throw new KlabRemoteException("server error retrieving observation " + id);
 				}
 			}
 			return ret;
