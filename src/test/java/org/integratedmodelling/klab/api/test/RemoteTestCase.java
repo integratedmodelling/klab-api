@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.exceptions.KlabResourceNotFoundException;
 import org.junit.Before;
 
-public class RemoteTestCase {
+public class RemoteTestCase extends KlabAPITestsuite {
 	
 	protected String username;
 	protected String password;
@@ -26,6 +27,12 @@ public class RemoteTestCase {
 		}
 		this.username = properties.getProperty("username", "username");
 		this.password = properties.getProperty("password", "password");
+	}
+
+	@Override
+	protected Klab createClient() {
+		readCredentials();
+		return Klab.create("https://developers.integratedmodelling.org/modeler", username, password);
 	}
 	
 }
