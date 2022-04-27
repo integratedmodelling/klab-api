@@ -1,4 +1,4 @@
-package org.integratedmodelling.klab.api.model;
+package org.integratedmodelling.klab.api.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -12,12 +12,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.integratedmodelling.kim.api.IKimConcept;
+import org.integratedmodelling.klab.api.Context;
+import org.integratedmodelling.klab.api.Observable;
+import org.integratedmodelling.klab.api.Observation;
 import org.integratedmodelling.klab.api.API.PUBLIC.Export;
 import org.integratedmodelling.klab.api.Klab.DataRepresentation;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.api.Klab.SpatialRepresentation;
 import org.integratedmodelling.klab.api.Klab.TemporalRepresentation;
-import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabIOException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
@@ -26,14 +28,14 @@ import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationReference.ObservationType;
 import org.integratedmodelling.klab.utils.Range;
 
-public class Observation {
+public class ObservationImpl implements Observation {
 
 	protected ObservationReference reference;
 	protected Map<String, String> catalogIds = new HashMap<>();
-	protected Map<String, Observation> catalog = new HashMap<>();
+	protected Map<String, ObservationImpl> catalog = new HashMap<>();
 	protected Engine engine;
 
-	public Observation(ObservationReference reference, Engine engine) {
+	public ObservationImpl(ObservationReference reference, Engine engine) {
 		this.reference = reference;
 		this.engine = engine;
 	}
@@ -47,6 +49,7 @@ public class Observation {
 	 * @return a set of fundamental semantic types, one for the main observable with
 	 *         potential qualifiers.
 	 */
+	@Override
 	public Set<IKimConcept.Type> getSemantics() {
 		return reference.getSemantics();
 	}
@@ -56,6 +59,7 @@ public class Observation {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Observable getObservable() {
 		return new Observable(reference.getObservable());
 	}
@@ -71,7 +75,9 @@ public class Observation {
 	 * @param a type to compare the observation with
 	 * @return true if the type describes the observation
 	 */
+	@Override
 	public boolean is(Object type) {
+		// TODO
 		return false;
 	}
 	
@@ -95,6 +101,7 @@ public class Observation {
 	 * @param parameters
 	 * @return
 	 */
+	@Override
 	public boolean export(Export target, ExportFormat format, File file, Object... parameters) {
 		boolean ret = false;
 		try (OutputStream stream = new FileOutputStream(file)) {
@@ -115,6 +122,7 @@ public class Observation {
 	 * @param format
 	 * @return the string value, or null if anything has failed.
 	 */
+	@Override
 	public String export(Export target, ExportFormat format) {
 		if (!format.isText()) {
 			throw new KlabIllegalArgumentException(
@@ -140,6 +148,7 @@ public class Observation {
 	 * @param parameters
 	 * @return
 	 */
+	@Override
 	public boolean export(Export target, ExportFormat format, OutputStream output, Object... parameters) {
 		if (!format.isExportAllowed(target)) {
 			throw new KlabIllegalArgumentException("export format is incompatible with target");
@@ -155,14 +164,15 @@ public class Observation {
 	 *             name of the observable requested.
 	 * @return
 	 */
+	@Override
 	public Observation getObservation(String name) {
 		String id = catalogIds.get(name);
 		if (id != null) {
-			Observation ret = catalog.get(id);
+			ObservationImpl ret = catalog.get(id);
 			if (ret == null) {
 				ObservationReference ref = engine.getObservation(id);
 				if (ref != null && ref.getId() != null) {
-					ret = new Observation(ref, engine);
+					ret = new ObservationImpl(ref, engine);
 					catalog.put(id, ret);
 				} else {
 					throw new KlabRemoteException("server error retrieving observation " + id);
@@ -182,6 +192,7 @@ public class Observation {
 	 * @throws KlabIllegalStateException if the observation can't be a context for
 	 *                                   further observations.
 	 */
+	@Override
 	public Context promote() {
 		return null;
 	}
@@ -193,6 +204,7 @@ public class Observation {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Range getDataRange() {
 		if (this.reference == null || this.reference.getObservationType() != ObservationType.STATE) {
 			throw new KlabIllegalStateException("getDataRange called on a non-state or null observation");
@@ -207,6 +219,7 @@ public class Observation {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Object getScalarValue() {
 		String literalValue = reference.getOverallValue();
 		if (literalValue != null) {

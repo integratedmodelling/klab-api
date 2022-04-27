@@ -1,4 +1,4 @@
-package org.integratedmodelling.klab.api.model;
+package org.integratedmodelling.klab.api;
 
 import org.integratedmodelling.klab.common.SemanticType;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;

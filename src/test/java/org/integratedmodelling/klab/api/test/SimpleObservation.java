@@ -2,9 +2,9 @@ package org.integratedmodelling.klab.api.test;
 
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.Context;
 import org.integratedmodelling.klab.api.Klab;
-import org.integratedmodelling.klab.api.model.Context;
-import org.integratedmodelling.klab.api.model.Observable;
+import org.integratedmodelling.klab.api.Observable;
 import org.integratedmodelling.klab.common.Geometry;
 import org.integratedmodelling.klab.utils.Range;
 import org.junit.After;

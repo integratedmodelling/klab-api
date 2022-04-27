@@ -7,24 +7,30 @@ import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.API.PUBLIC.Export;
 import org.integratedmodelling.klab.api.data.IGeometry;
-import org.integratedmodelling.klab.api.model.Context;
-import org.integratedmodelling.klab.api.model.Estimate;
-import org.integratedmodelling.klab.api.model.Observable;
+import org.integratedmodelling.klab.api.impl.Engine;
+import org.integratedmodelling.klab.api.impl.EstimateImpl;
+import org.integratedmodelling.klab.api.impl.TicketHandler;
 import org.integratedmodelling.klab.api.runtime.ITicket.Type;
 import org.integratedmodelling.klab.api.services.IConfigurationService;
-import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.common.GeometryBuilder;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
 import org.integratedmodelling.klab.rest.ContextRequest;
 
 /**
- * Main k.LAB client. Instantiate one with your certificate/engine URL (or
- * defaults) to start using k.LAB within a Java application.
+ * Main k.LAB client. Also holds all types and interfaces for the observation
+ * classes.
+ * <p>
+ * Instantiate a k.LAB client using {@link #create(String, String, String))}
+ * using your engine URL and credentials, or use {@link #create()} or
+ * {@link #create(String)} to connect to a <a href=
+ * "https://docs.integratedmodelling.org/klab/get_started/index.html">local
+ * engine</a>. Then submit ({@link #submit(Observable, IGeometry, Object...)})
+ * or request estimates for
+ * ({@link #estimate(Observable, IGeometry, Object...)}) queries .
  * 
  * 
- * 
- * @author Ferd
+ * @author Ferdinando Villa, BC3/Ikerbasque
  *
  */
 public class Klab {
@@ -205,10 +211,10 @@ public class Klab {
 	 */
 	public Future<Context> submit(Estimate estimate) {
 
-		if (estimate.getTicketType() != Type.ContextEstimate) {
+		if (((EstimateImpl) estimate).getTicketType() != Type.ContextEstimate) {
 			throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
 		}
-		String ticket = engine.submitEstimate(estimate.getEstimateId());
+		String ticket = engine.submitEstimate(((EstimateImpl)estimate).getEstimateId());
 		if (ticket != null) {
 			return new TicketHandler<Context>(engine, ticket, null);
 		}

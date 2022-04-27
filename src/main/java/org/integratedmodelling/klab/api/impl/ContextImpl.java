@@ -1,23 +1,26 @@
-package org.integratedmodelling.klab.api.model;
+package org.integratedmodelling.klab.api.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.integratedmodelling.klab.api.Context;
+import org.integratedmodelling.klab.api.Estimate;
+import org.integratedmodelling.klab.api.Observable;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
-import org.integratedmodelling.klab.api.TicketHandler;
+import org.integratedmodelling.klab.api.Observation;
 import org.integratedmodelling.klab.api.data.IGeometry;
 import org.integratedmodelling.klab.api.runtime.ITicket.Type;
-import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.common.SemanticType;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
+import org.integratedmodelling.klab.exceptions.KlabRemoteException;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.ObservationRequest;
 import org.integratedmodelling.klab.utils.Pair;
 
-public class Context extends Observation {
+public class ContextImpl extends ObservationImpl implements Context {
 
 	/*
 	 * if defined, these are submitted at the next submit() before the main
@@ -34,7 +37,7 @@ public class Context extends Observation {
 	IGeometry injectedGeometry;
 	Observable injectedDirectObservable;
 
-	public Context(ObservationReference bean, Engine engine) {
+	public ContextImpl(ObservationReference bean, Engine engine) {
 		super(bean, engine);
 	}
 
@@ -45,6 +48,7 @@ public class Context extends Observation {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Future<Estimate> estimate(Observable observable, Object... arguments) {
 
 		ObservationRequest request = new ObservationRequest();
@@ -73,6 +77,7 @@ public class Context extends Observation {
 	 * 
 	 * @return
 	 */
+	@Override
 	public Future<Observation> submit(Observable observable, Object... arguments) {
 
 		ObservationRequest request = new ObservationRequest();
@@ -95,11 +100,12 @@ public class Context extends Observation {
 				"Cannot build observation request from arguments: " + Arrays.toString(arguments));
 	}
 
+	@Override
 	public Future<Observation> submit(Estimate estimate) {
-		if (estimate.getTicketType() != Type.ObservationEstimate) {
+		if (((EstimateImpl)estimate).getTicketType() != Type.ObservationEstimate) {
 			throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
 		}
-		String ticket = engine.submitEstimate(estimate.getEstimateId());
+		String ticket = engine.submitEstimate(((EstimateImpl)estimate).getEstimateId());
 		if (ticket != null) {
 			// the handler updates the context catalog when the observation arrives
 			return new TicketHandler<Observation>(engine, ticket, this);
@@ -122,6 +128,7 @@ public class Context extends Observation {
 	 *                                      output
 	 * @throws KlabRemoteException          if transfer fails for any reason
 	 */
+	@Override
 	public String getDataflow(ExportFormat format) {
 		// TODO
 		return null;
@@ -146,6 +153,7 @@ public class Context extends Observation {
 	 *                                      output
 	 * @throws KlabRemoteException          if transfer fails for any reason
 	 */
+	@Override
 	public String getProvenance(boolean simplified, ExportFormat format) {
 		// TODO
 		return null;
@@ -159,6 +167,7 @@ public class Context extends Observation {
 	 * @param value   a value appropriate for the concept
 	 * @return this same context for chaining calls.
 	 */
+	@Override
 	public Context with(Observable concept, Object value) {
 		// TODO
 		return this;
@@ -175,6 +184,7 @@ public class Context extends Observation {
 	 * @param geometry
 	 * @return
 	 */
+	@Override
 	public Future<Context> with(Observable subject, IGeometry geometry) {
 		// TODO
 		return null;
@@ -188,7 +198,7 @@ public class Context extends Observation {
 	 * 
 	 * @param ret
 	 */
-	public void updateWith(Observation ret) {
+	public void updateWith(ObservationImpl ret) {
 		this.reference = engine.getObservation(reference.getId());
 		for (String name : this.reference.getChildIds().keySet()) {
 			if (ret.reference.getId().equals(this.reference.getChildIds().get(name))) {

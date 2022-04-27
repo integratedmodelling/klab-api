@@ -1,16 +1,17 @@
-package org.integratedmodelling.klab.api.model;
+package org.integratedmodelling.klab.api.impl;
 
+import org.integratedmodelling.klab.api.Estimate;
 import org.integratedmodelling.klab.api.runtime.ITicket;
 import org.integratedmodelling.klab.api.runtime.ITicket.Type;
 
-public class Estimate {
+public class EstimateImpl implements Estimate {
 
     private String estimateId;
     private double cost;
     private String currency;
     private ITicket.Type ticketType;
 
-    public Estimate(String id, double cost, String currency, Type type) {
+    public EstimateImpl(String id, double cost, String currency, Type type) {
         this.estimateId = id;
         this.cost = cost;
         this.currency = currency;
@@ -22,7 +23,8 @@ public class Estimate {
      * 
      * @return
      */
-    public double getCost() {
+    @Override
+	public double getCost() {
         return cost;
     }
 
@@ -32,7 +34,8 @@ public class Estimate {
      * 
      * @return
      */
-    public String getCurrency() {
+    @Override
+	public String getCurrency() {
         return currency;
     }
 

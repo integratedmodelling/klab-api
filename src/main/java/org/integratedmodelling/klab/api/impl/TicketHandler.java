@@ -1,4 +1,4 @@
-package org.integratedmodelling.klab.api;
+package org.integratedmodelling.klab.api.impl;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -6,11 +6,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.integratedmodelling.klab.api.model.Context;
-import org.integratedmodelling.klab.api.model.Estimate;
-import org.integratedmodelling.klab.api.model.Observation;
+import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.api.runtime.ITicket.Status;
-import org.integratedmodelling.klab.api.utils.Engine;
 import org.integratedmodelling.klab.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.rest.ObservationReference;
 import org.integratedmodelling.klab.rest.TicketResponse;
@@ -29,11 +26,11 @@ public class TicketHandler<T> implements Future<T> {
 
     private Engine engine;
     private String ticketId;
-    private Context context;
+    private ContextImpl context;
     private AtomicReference<T> result = new AtomicReference<>();
     private boolean cancelled;
 
-    public TicketHandler(Engine engine, String ticketId, Context context) {
+    public TicketHandler(Engine engine, String ticketId, ContextImpl context) {
         this.engine = engine;
         this.ticketId = ticketId;
         this.context = context;
@@ -136,7 +133,7 @@ public class TicketHandler<T> implements Future<T> {
         if (ticket.getData().containsKey("artifacts")) {
             for (String oid : ticket.getData().get("artifacts").split(",")) {
                 ObservationReference bean = engine.getObservation(oid);
-                Observation ret = new Observation(bean, engine);
+                ObservationImpl ret = new ObservationImpl(bean, engine);
                 if (context != null) {
                     context.updateWith(ret);
                 }
@@ -149,7 +146,7 @@ public class TicketHandler<T> implements Future<T> {
     @SuppressWarnings("unchecked")
     private T makeContext(Ticket ticket) {
         ObservationReference bean = engine.getObservation(ticket.getData().get("context"));
-        Context context = new Context(bean, engine);
+        ContextImpl context = new ContextImpl(bean, engine);
         if (ticket.getData().containsKey("artifacts")) {
             for (String oid : ticket.getData().get("artifacts").split(",")) {
                 context.notifyObservation(oid);
@@ -160,7 +157,7 @@ public class TicketHandler<T> implements Future<T> {
 
     @SuppressWarnings("unchecked")
     private T makeEstimate(Ticket ticket) {
-        return (T) new Estimate(ticket.getData().get("estimate"),
+        return (T) new EstimateImpl(ticket.getData().get("estimate"),
                 Double.parseDouble(ticket.getData().get("cost")), ticket.getData().get("currency"),
                 ticket.getType());
     }

@@ -6,12 +6,14 @@ import java.io.File;
 import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.API.PUBLIC.Export;
-import org.integratedmodelling.klab.api.Klab.ExportFormat;
+import org.integratedmodelling.klab.api.Context;
+import org.integratedmodelling.klab.api.Estimate;
 import org.integratedmodelling.klab.api.Klab;
-import org.integratedmodelling.klab.api.model.Context;
-import org.integratedmodelling.klab.api.model.Estimate;
-import org.integratedmodelling.klab.api.model.Observable;
-import org.integratedmodelling.klab.api.model.Observation;
+import org.integratedmodelling.klab.api.Klab.ExportFormat;
+import org.integratedmodelling.klab.api.impl.EstimateImpl;
+import org.integratedmodelling.klab.api.impl.ObservationImpl;
+import org.integratedmodelling.klab.api.Observable;
+import org.integratedmodelling.klab.api.Observation;
 import org.integratedmodelling.klab.common.Geometry;
 import org.integratedmodelling.klab.utils.NumberUtils;
 import org.integratedmodelling.klab.utils.Range;
@@ -168,7 +170,7 @@ public class LocalTestCase {
 		 */
 		Estimate estimate = estimateTask.get();
 
-		assert estimate != null && estimate.getEstimateId() != null;
+		assert estimate != null && ((EstimateImpl)estimate).getEstimateId() != null;
 
 		if (estimate.getCost() >= 0) {
 
@@ -197,7 +199,7 @@ public class LocalTestCase {
 		/*
 		 * ensure the context has been updated with the new observation
 		 */
-		assert context.getObservation("elevation") instanceof Observation;
+		assert context.getObservation("elevation") instanceof ObservationImpl;
 
 	}
 
