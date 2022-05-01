@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.api.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Context;
@@ -36,9 +37,9 @@ public abstract class KlabAPITestsuite {
 	protected abstract Klab createClient();
 
 	@After
-	public void disconnect() {
+	public void disconnect() throws IOException {
 		if (klab.isOnline()) {
-			klab.disconnect();
+			klab.close();
 		}
 	}
 

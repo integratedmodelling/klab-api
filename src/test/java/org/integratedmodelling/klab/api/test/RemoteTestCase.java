@@ -10,11 +10,21 @@ import org.integratedmodelling.klab.api.Klab;
 import org.integratedmodelling.klab.exceptions.KlabResourceNotFoundException;
 import org.junit.Before;
 
+/**
+ * To run the test suite on a remote engine, a ~/.klab/testcredential.properties
+ * file must be present and contain username and password for the test engine,
+ * whose URL defaults to the development engine at BC3 and can be changed using
+ * the 'engine' property.
+ * 
+ * @author Ferd
+ *
+ */
 public class RemoteTestCase extends KlabAPITestsuite {
-	
+
 	protected String username;
 	protected String password;
-	
+	protected String testEngine;
+
 	@Before
 	public void readCredentials() {
 		Properties properties = new Properties();
@@ -27,12 +37,13 @@ public class RemoteTestCase extends KlabAPITestsuite {
 		}
 		this.username = properties.getProperty("username", "username");
 		this.password = properties.getProperty("password", "password");
+		this.testEngine = properties.getProperty("engine", "https://developers.integratedmodelling.org/modeler");
 	}
 
 	@Override
 	protected Klab createClient() {
 		readCredentials();
-		return Klab.create("https://developers.integratedmodelling.org/modeler", username, password);
+		return Klab.create(testEngine, username, password);
 	}
-	
+
 }

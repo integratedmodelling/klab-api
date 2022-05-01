@@ -1,5 +1,7 @@
 package org.integratedmodelling.klab.api;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
@@ -11,31 +13,36 @@ import org.integratedmodelling.klab.api.impl.Engine;
 import org.integratedmodelling.klab.api.impl.EstimateImpl;
 import org.integratedmodelling.klab.api.impl.TicketHandler;
 import org.integratedmodelling.klab.api.runtime.ITicket.Type;
-import org.integratedmodelling.klab.api.services.IConfigurationService;
 import org.integratedmodelling.klab.common.GeometryBuilder;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabIllegalStateException;
 import org.integratedmodelling.klab.rest.ContextRequest;
 
 /**
- * Main k.LAB client. Also holds all types and interfaces for the observation
- * classes.
+ * The main k.LAB client class. A client object represents a user session in a
+ * local or remote engine.
  * <p>
  * Instantiate a k.LAB client using {@link #create(String, String, String)}
  * using your engine URL and credentials, or use {@link #create()} or
  * {@link #create(String)} to connect to a <a href=
  * "https://docs.integratedmodelling.org/klab/get_started/index.html">local
- * engine</a>. Then submit ({@link #submit(Observable, IGeometry, Object...)})
- * or request estimates for
- * ({@link #estimate(Observable, IGeometry, Object...)}) queries .
+ * engine</a>. After creation, {@link #isOnline()} should always be called to
+ * ensure the connection was successful. Then call
+ * ({@link #submit(Observable, IGeometry, Object...)}) or
+ * ({@link #estimate(Observable, IGeometry, Object...)}) to create a context for
+ * further observations, which are done by invoking similar methods directly on
+ * the resulting context. Using <code>estimate</code> provides a pattern to
+ * obtain a cost estimate for each operation, which depends on the size of the
+ * job and the user agreement.
  * <p>
- * In the case of a remote engine, the user must be authorized to the usage of
- * k.LAB via API.
+ * In the case of a remote engine, the user must be explicitly authorized to the
+ * usage of k.LAB via API: the regular self-certified user must request
+ * authorization through the k.LAB hub.
  * 
  * @author Ferdinando Villa, BC3/Ikerbasque
  *
  */
-public class Klab {
+public class Klab implements Closeable {
 
 	Engine engine;
 	String session;
@@ -131,18 +138,10 @@ public class Klab {
 		this.session = this.engine.authenticate(username, password);
 	}
 
-	public void disconnect() {
-		if (this.engine.isOnline()) {
-			this.engine.deauthenticate();
-		}
-
-	}
-
 	/**
-	 * Authenticate with the hub in a certificate and open a session with the engine
-	 * passed. Use the certificate from the default location ($HOME/.klab/im.cert or
-	 * the value of the {@link IConfigurationService#KLAB_ENGINE_CERTIFICATE} system
-	 * property.
+	 * Authenticate with a remote engine and open a new user session. Call
+	 * {@link #close()} to free remote resources, or create the client in a
+	 * try-with-resource block.
 	 * 
 	 * @param remoteEngineUrl
 	 * @param username
@@ -154,9 +153,11 @@ public class Klab {
 	}
 
 	/**
-	 * Authenticate with a local engine in a certificate and open a session with the
-	 * engine passed. Won't require authentication but only works if the engine is
-	 * local and authenticated.
+	 * Authenticate with a local engine and open the default session. This does not
+	 * require authentication but only works if the engine is running on the local
+	 * network and is properly authenticated through a certificate. Calling
+	 * {@link #close()} is good practice but won't change the state of the session,
+	 * which can be reconnected to if wished.
 	 * 
 	 * @param localEngineUrl
 	 * @return
@@ -166,7 +167,8 @@ public class Klab {
 	}
 
 	/**
-	 * Connect to local server with the default URL.
+	 * Connect to local server. Equivalent to {@link #create(String)} using the
+	 * default local server URL on port 8283.
 	 * 
 	 * @return
 	 */
@@ -174,6 +176,11 @@ public class Klab {
 		return new Klab("http://127.0.0.1:8283/modeler");
 	}
 
+	/**
+	 * Should always be called after creation to check on the engine status.
+	 * 
+	 * @return
+	 */
 	public boolean isOnline() {
 		return engine.isOnline();
 	}
@@ -277,5 +284,12 @@ public class Klab {
 
 		throw new KlabIllegalArgumentException(
 				"Cannot build estimate request from arguments: " + Arrays.toString(arguments));
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (this.engine.isOnline()) {
+			this.engine.deauthenticate();
+		}
 	}
 }
