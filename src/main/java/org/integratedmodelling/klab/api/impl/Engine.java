@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.integratedmodelling.klab.Version;
 import org.integratedmodelling.klab.api.API;
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
 import org.integratedmodelling.klab.exceptions.KlabIOException;
@@ -54,7 +55,8 @@ public class Engine implements API.PUBLIC {
 		}
 
 		return (T) Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType)
-				.header("Authorization", token).body(request).asObject(responseType).getBody();
+				.header("Authorization", token).header("User-Agent", getUserAgent()).body(request)
+				.asObject(responseType).getBody();
 	}
 
 	private <T> T get(String endpoint, Class<? extends T> cls, Object... parameters) {
@@ -69,7 +71,7 @@ public class Engine implements API.PUBLIC {
 		// Should pass a String class for text or an InputStream class for streamed
 		// data.
 		return (T) Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("Authorization", token)
-				.asObject(cls).getBody();
+				.header("User-Agent", getUserAgent()).asObject(cls).getBody();
 	}
 
 	private String makeUrl(String endpoint, Object... parameters) {
@@ -132,7 +134,7 @@ public class Engine implements API.PUBLIC {
 	public String authenticate() {
 		try {
 			HttpResponse<PingResponse> request = Unirest.get(makeUrl(API.PING)).accept("application/json")
-					.asObject(PingResponse.class);
+					.header("User-Agent", getUserAgent()).asObject(PingResponse.class);
 			if (request.isSuccess()) {
 				PingResponse response = request.getBody();
 				if (response != null && response.getLocalSessionId() != null) {
@@ -205,9 +207,9 @@ public class Engine implements API.PUBLIC {
 				EXPORT_DATA.replace(P_EXPORT, target.name().toLowerCase()).replace(P_OBSERVATION, observationId),
 				parameters);
 		try {
-			
+
 			Unirest.get(url).accept(format.getMediaType()).header("Authorization", token)
-					.thenConsume(response -> {
+					.header("User-Agent", getUserAgent()).thenConsume(response -> {
 						try {
 							response.getContent().transferTo(output);
 						} catch (IOException e) {
@@ -215,13 +217,17 @@ public class Engine implements API.PUBLIC {
 							throw new KlabIOException(e);
 						}
 					});
-			
+
 			return true;
-					
+
 		} catch (Throwable t) {
 			// just return false
 		}
 
 		return false;
+	}
+
+	private String getUserAgent() {
+		return "k.LAB/" + Version.CURRENT + " (" + USER_AGENT_PLATFORM + ")";
 	}
 }

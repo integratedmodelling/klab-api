@@ -3,8 +3,6 @@ package org.integratedmodelling.klab.api;
 import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Klab.ExportFormat;
-import org.integratedmodelling.klab.api.data.IGeometry;
-import org.integratedmodelling.klab.common.GeometryBuilder;
 import org.integratedmodelling.klab.exceptions.KlabIllegalArgumentException;
 import org.integratedmodelling.klab.exceptions.KlabRemoteException;
 
@@ -105,15 +103,18 @@ public interface Context extends Observation {
 	String getProvenance(boolean simplified, ExportFormat format);
 
 	/**
-	 * Use in a fluent fashion to insert quality observations into the context at
-	 * the next submit(). Does not send anything to the server until submit() is
-	 * called. Should only be used to insert observations with known, scalar values,
-	 * which will be known to the engine before the main submit() observation is
-	 * made. Estimates should be made including the chain of observations, and it is
-	 * illegal to submit an estimate after with() is called.
+	 * Use in a fluent fashion to insert quality observations or objects into the
+	 * context at the next submit(). Does not send anything to the server until
+	 * submit() is called. Should only be used to insert observations with known,
+	 * scalar values, which will be known to the engine before the main submit()
+	 * observation is made. Estimates should be made including the chain of
+	 * observations, and it is illegal to submit an estimate after with() is called.
 	 * 
-	 * @param concept
-	 * @param value   a value appropriate for the concept
+	 * @param concept an observable
+	 * @param value   a value appropriate for the concept. If the concept is a
+	 *                direct observable, the observable must be named and the value
+	 *                must be a geometry (any errors are notified only by the server
+	 *                after submit).
 	 * @return this same context for chaining calls.
 	 */
 	Context with(Observable concept, Object value);

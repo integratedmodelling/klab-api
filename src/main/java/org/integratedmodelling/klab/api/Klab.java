@@ -21,14 +21,16 @@ import org.integratedmodelling.klab.rest.ContextRequest;
  * Main k.LAB client. Also holds all types and interfaces for the observation
  * classes.
  * <p>
- * Instantiate a k.LAB client using {@link #create(String, String, String))}
+ * Instantiate a k.LAB client using {@link #create(String, String, String)}
  * using your engine URL and credentials, or use {@link #create()} or
  * {@link #create(String)} to connect to a <a href=
  * "https://docs.integratedmodelling.org/klab/get_started/index.html">local
  * engine</a>. Then submit ({@link #submit(Observable, IGeometry, Object...)})
  * or request estimates for
  * ({@link #estimate(Observable, IGeometry, Object...)}) queries .
- * 
+ * <p>
+ * In the case of a remote engine, the user must be authorized to the usage of
+ * k.LAB via API.
  * 
  * @author Ferdinando Villa, BC3/Ikerbasque
  *
@@ -97,10 +99,22 @@ public class Klab {
 		VOID, BOOLEAN, NUMERIC, CATEGORICAL
 	}
 
+	/**
+	 * The overall representation of space in an observation.
+	 * 
+	 * @author Ferd
+	 *
+	 */
 	public static enum SpatialRepresentation {
 		NONE, SHAPE, GRID, FEATURES
 	}
 
+	/**
+	 * The overall representation of time in an observation.
+	 * 
+	 * @author Ferd
+	 *
+	 */
 	public static enum TemporalRepresentation {
 		NONE, PERIOD, TIMESERIES
 	}
@@ -130,7 +144,9 @@ public class Klab {
 	 * the value of the {@link IConfigurationService#KLAB_ENGINE_CERTIFICATE} system
 	 * property.
 	 * 
-	 * @param engineUrl
+	 * @param remoteEngineUrl
+	 * @param username
+	 * @param password
 	 * @return
 	 */
 	public static Klab create(String remoteEngineUrl, String username, String password) {
@@ -142,7 +158,7 @@ public class Klab {
 	 * engine passed. Won't require authentication but only works if the engine is
 	 * local and authenticated.
 	 * 
-	 * @param engineUrl
+	 * @param localEngineUrl
 	 * @return
 	 */
 	public static Klab create(String localEngineUrl) {

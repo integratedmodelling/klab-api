@@ -44,7 +44,7 @@ public interface Observation {
 	 * <li>{@link IKimConcept.Type} to check the fundamental semantics.</li>
 	 * </ul>
 	 * 
-	 * @param a type to compare the observation with
+	 * @param type a type to compare the observation with
 	 * @return true if the type describes the observation
 	 */
 	boolean is(Object type);

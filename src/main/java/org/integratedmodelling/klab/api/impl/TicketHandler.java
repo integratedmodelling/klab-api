@@ -20,7 +20,6 @@ import org.integratedmodelling.klab.rest.TicketResponse.Ticket;
  * @author Ferd
  *
  * @param <T> class of final result
- * @param <B> class of the bean to be converted into the T result
  */
 public class TicketHandler<T> implements Future<T> {
 
