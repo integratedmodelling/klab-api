@@ -182,6 +182,10 @@ public abstract class KlabAPITestsuite {
 
 			assert context != null;
 			assert context.getObservation("elevation") != null;
+			String dataflow = context.getDataflow(ExportFormat.KDL_CODE);
+			assert dataflow != null && dataflow.length() > 0;
+			String provenance = context.getProvenance(true, ExportFormat.ELK_GRAPH_JSON);
+			assert provenance != null && provenance.length() > 0;
 		}
 	}
 
@@ -203,6 +207,11 @@ public abstract class KlabAPITestsuite {
 		 * ensure the context has been updated with the new observation
 		 */
 		assert context.getObservation("elevation") instanceof ObservationImpl;
+		String dataflow = context.getDataflow(ExportFormat.KDL_CODE);
+		assert dataflow != null && dataflow.length() > 0;
+		String provenance = context.getProvenance(true, ExportFormat.ELK_GRAPH_JSON);
+		assert provenance != null && provenance.length() > 0;
+
 
 	}
 
@@ -218,8 +227,7 @@ public abstract class KlabAPITestsuite {
 		File outfile = File.createTempFile("ruaha", ".png");
 		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "900");
 		System.out.println(elevation.export(Export.LEGEND, ExportFormat.JSON_CODE)); 
-		// TODO read the image into an outputstream and check it for size and content -
-		// currently fails because of weird crop bug (not happening in explorer)
+		// TODO read the image into an outputstream and check it for size and content
 	}
 
 	@Test

@@ -9,14 +9,16 @@ public class EstimateImpl implements Estimate {
 
 	private String estimateId;
 	private double cost;
+	private boolean feasible;
 	private String currency;
 	private ITicket.Type ticketType;
 
-	public EstimateImpl(String id, double cost, String currency, Type type) {
+	public EstimateImpl(String id, double cost, String currency, Type type, String feasible) {
 		this.estimateId = id;
 		this.cost = cost;
 		this.currency = currency;
 		this.ticketType = type;
+		this.feasible = "true".equals(feasible);
 	}
 
 	/**
@@ -53,6 +55,11 @@ public class EstimateImpl implements Estimate {
 	public String getDataflow(ExportFormat format) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean isFeasible() {
+		return feasible;
 	}
 
 }

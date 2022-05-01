@@ -7,6 +7,17 @@ import org.integratedmodelling.klab.exceptions.KlabRemoteException;
 public interface Estimate {
 
 	/**
+	 * If true, the observation is deemed feasible because a dataflow can be built
+	 * to make it. This does not guarantee that the eventual observation will
+	 * complete without error, but if false it does guarantee that it won't
+	 * complete. No costs will ever be associated with observations that do not
+	 * complete.
+	 * 
+	 * @return
+	 */
+	boolean isFeasible();
+
+	/**
 	 * The cost of the estimate, converted to the user currency returned by
 	 * {@link #getCurrency()}.
 	 * 
