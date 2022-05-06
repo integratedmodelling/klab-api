@@ -212,8 +212,6 @@ public abstract class KlabAPITestsuite {
 		assert dataflow != null && dataflow.length() > 0;
 		String provenance = context.getProvenance(true, ExportFormat.ELK_GRAPH_JSON);
 		assert provenance != null && provenance.length() > 0;
-
-
 	}
 
 	@Test
@@ -226,8 +224,10 @@ public abstract class KlabAPITestsuite {
 		assert context != null;
 		Observation elevation = context.submit(new Observable("geography:Elevation")).get();
 		File outfile = File.createTempFile("ruaha", ".png");
+		outfile.deleteOnExit();
 		assert elevation.export(Export.DATA, ExportFormat.PNG_IMAGE, outfile, "viewport", "900");
-		System.out.println(elevation.export(Export.LEGEND, ExportFormat.JSON_CODE)); 
+		assert outfile.exists() && outfile.length() > 10000;
+		System.out.println(elevation.export(Export.LEGEND, ExportFormat.JSON_CODE));
 		// TODO read the image into an outputstream and check it for size and content
 	}
 
