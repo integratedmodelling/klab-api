@@ -132,7 +132,7 @@ public class TicketHandler<T> implements Future<T> {
 			for (String oid : ticket.getData().get("artifacts").split(",")) {
 				ObservationReference bean = engine.getObservation(oid);
 				ObservationImpl ret = new ObservationImpl(bean, engine);
-				if (context != null) {
+				if (context != null && ret != null && ret.reference != null) {
 					context.updateWith(ret);
 				}
 				return (T) ret;

@@ -220,19 +220,19 @@ public class Klab implements Closeable {
         ContextRequest request = new ContextRequest();
         request.setUrn(urn);
         request.setEstimate(true);
-        for (Object o : arguments) {
-            if (o instanceof Observable) {
-                request.getObservables().add(((Observable) o).toString());
-            } else if (o instanceof String) {
-                request.getScenarios().add((String) o);
+        if (arguments != null) {
+            for (Object o : arguments) {
+                if (o instanceof Observable) {
+                    request.getObservables().add(((Observable) o).toString());
+                } else if (o instanceof String) {
+                    request.getScenarios().add((String) o);
+                }
             }
         }
 
-        if (request.getGeometry() != null && request.getContextType() != null) {
-            String ticket = engine.submitContext(request);
-            if (ticket != null) {
-                return new TicketHandler<Estimate>(engine, ticket, null);
-            }
+        String ticket = engine.submitContext(request);
+        if (ticket != null) {
+            return new TicketHandler<Estimate>(engine, ticket, null);
         }
 
         throw new KlabIllegalArgumentException("Cannot build estimate request from arguments: " + Arrays.toString(arguments));
@@ -299,19 +299,19 @@ public class Klab implements Closeable {
         ContextRequest request = new ContextRequest();
         request.setUrn(urn);
         request.setEstimate(false);
-        for (Object o : arguments) {
-            if (o instanceof Observable) {
-                request.getObservables().add(((Observable) o).toString());
-            } else if (o instanceof String) {
-                request.getScenarios().add((String) o);
+        if (arguments != null) {
+            for (Object o : arguments) {
+                if (o instanceof Observable) {
+                    request.getObservables().add(((Observable) o).toString());
+                } else if (o instanceof String) {
+                    request.getScenarios().add((String) o);
+                }
             }
         }
 
-        if (request.getGeometry() != null && request.getContextType() != null) {
-            String ticket = engine.submitContext(request);
-            if (ticket != null) {
-                return new TicketHandler<Context>(engine, ticket, null);
-            }
+        String ticket = engine.submitContext(request);
+        if (ticket != null) {
+            return new TicketHandler<Context>(engine, ticket, null);
         }
 
         throw new KlabIllegalArgumentException("Cannot build estimate request from arguments: " + Arrays.toString(arguments));

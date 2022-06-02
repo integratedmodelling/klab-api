@@ -160,4 +160,9 @@ public class ObservationImpl implements Observation {
         return this.reference.getDataSummary().getMean();
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.reference == null;
+    }
+    
 }

@@ -11,17 +11,16 @@ import org.integratedmodelling.klab.utils.Range;
  * @author Ferd
  *
  */
-public class Observable extends SemanticType {
-
-	private static final long serialVersionUID = -1660052679419582750L;
+public class Observable  {
 
 	private String name = null;
 	private String unit = null;
 	private Object value = null;
 	private Range range = null;
+	private String semantics;
 	
 	public Observable(String s) {
-		super(s);
+		this.semantics = s;
 	}
 
 	public static Observable create(String s) {
@@ -69,11 +68,15 @@ public class Observable extends SemanticType {
 	@Override
 	public String toString() {
 		return(value == null ? "" : (value + " as ")) 
-			+ super.toString() 
+			+ semantics 
 			+ (range == null ? "" : (range.getLowerBound() + " to " + range.getUpperBound())) 
 			+ (unit == null ? "" : (" in " + unit))
 			+ (name == null ? "" : (" named " + name));
 			
 	}
+
+    public String getName() {
+        return this.name;
+    }
 	
 }

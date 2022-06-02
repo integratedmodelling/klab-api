@@ -130,4 +130,6 @@ public interface Observation {
      */
     Object getAggregatedValue();
 
+    boolean isEmpty();
+
 }
