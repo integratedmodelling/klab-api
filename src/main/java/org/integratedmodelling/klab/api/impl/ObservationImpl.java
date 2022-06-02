@@ -151,4 +151,13 @@ public class ObservationImpl implements Observation {
 		return literalValue;
 	}
 
+    @Override
+    public Object getAggregatedValue() {
+        if (this.reference == null || this.reference.getObservationType() != ObservationType.STATE) {
+            throw new KlabIllegalStateException("getDataRange called on a non-state or null observation");
+        }
+        // FIXME this is NOT the correct result
+        return this.reference.getDataSummary().getMean();
+    }
+
 }
