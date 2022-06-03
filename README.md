@@ -99,7 +99,4 @@ This code is licensed through the GNU Affero Public License, v. 3 or any subsequ
 
 ## Contact
 
-General inquiries can be made at support@integratedmodelling.org, or through the Confluence Questions space available to registered integratedmodelling.org users. Please use the Github issue tracker for bug reports or feature requests.
-
-
-For bug reports and feature requests please use the GitHub issues for this project. General questions can be addressed to support@integratedmodelling.org.
+General inquiries can be made at support@integratedmodelling.org, or through the Confluence Questions space available to registered integratedmodelling.org users. Please use the GitHub issue tracker for bug reports or feature requests.
