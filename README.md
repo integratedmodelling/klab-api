@@ -6,7 +6,7 @@
 This package is a Java client for [k.LAB](https://github.com/integratedmodelling/klab). It allows registered users of k.LAB to make
 observations on the k.LAB semantic web from a Java program using the REST API. After creating a spatial/temporal context root
 observation as a context, you can submit concepts to be observed in it and the relative observations will be made at the server
-side and returned. According to the concepts, the results will be different types of scientific artifacts that can be exported or
+side and returned. Depending on the semantics submitted, the results will consists of different scientific artifacts that can be exported or
 inspected as needed through the API.
 
 Similar clients are being written for Python and Javascript.
