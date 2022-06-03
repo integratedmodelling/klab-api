@@ -25,6 +25,11 @@ import org.junit.Test;
  */
 public class HeCoTests {
 
+    static String[] indicators = {"im:Indicator value of ecology:Biodiversity",
+            "im:Indicator value of ecology:Ecosystem for es:ClimateRegulation",
+            "im:Indicator es.nca:Condition of demography:SocialStructure",
+            "im:Indicator es.nca:Condition of earth:Aquatic ecology:Ecosystem"};
+
     protected Klab klab;
     protected String username;
     protected String password;
@@ -66,7 +71,7 @@ public class HeCoTests {
     public void biodiversityIndicator() throws Exception {
         Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
         assert colombia != null;
-        Observation biodiversityIndicator = colombia
-                .submit(Observable.create("im:Indicator landcover.incubation:Ecosystem es.nca:Condition")).get();
+        Observation biodiversityIndicator = colombia.submit(Observable.create(indicators[0])).get();
+        assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();
     }
 }
