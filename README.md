@@ -27,8 +27,8 @@ This package is available in Maven Central as `integratedmodelling.org:klab-api`
    <version>${klab.api.version}</version>
 </dependency>
 ```
-to the dependency section of your `pom.xml`. The latest version is **0.1.0-SNAPSHOT**. The only dependencies are the core k.LAB
-interface package and Unirest.
+to the dependency section of your `pom.xml`. The latest version is **0.1.0-SNAPSHOT**. There is no official (non-snapshot) release yet. 
+The only dependencies are the core k.LAB interface package and Unirest.
 
 ## Use of the k.LAB network
 
