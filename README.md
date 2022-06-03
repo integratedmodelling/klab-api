@@ -1,12 +1,18 @@
-:warning: This package is not yet ready to use. This note will be removed when it is.
-
 # Java k.LAB API Client
 
 <img src="https://docs.integratedmodelling.org/klab/_images/KLAB_LOGO.png" align="right"
      alt="k.LAB logo" width="258" height="108">
 
 This package is a Java client for [k.LAB](https://github.com/integratedmodelling/klab). It allows registered users of k.LAB to make
-observations on the k.LAB semantic web from a Java program using the REST API. Similar clients are being written for Python and Javascript.
+observations on the k.LAB semantic web from a Java program using the REST API. After creating a spatial/temporal context root
+observation as a context, you can submit concepts to be observed in it and the relative observations will be made at the server
+side and returned. According to the concepts, the results will be different types of scientific artifacts that can be exported or
+inspected as needed through the API.
+
+Similar clients are being written for Python and Javascript.
+
+While the API (both k.LAB's public REST API and the interfaces in this package) should be stable, this code is young - features are still 
+missing and bugs certainly remain. Please submit Github issues as needed.
 
 This README assumes knowledge of k.LAB and semantic modeling. An introduction to both is available as a [technical note](https://docs.integratedmodelling.org/technote/index.html) while more extensive documentation is developed.
 
