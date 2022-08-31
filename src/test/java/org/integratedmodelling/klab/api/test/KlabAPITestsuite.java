@@ -27,13 +27,13 @@ public abstract class KlabAPITestsuite {
 	 */
 	protected static String ruaha = "EPSG:4326 POLYGON((33.796 -7.086, 35.946 -7.086, 35.946 -9.41, 33.796 -9.41, 33.796 -7.086))";
 	protected Klab klab;
-	
+
 	@Before
 	public void connect() {
 		this.klab = createClient();
 		assert klab.isOnline();
 	}
-	
+
 	protected abstract Klab createClient();
 
 	@After
@@ -86,7 +86,39 @@ public abstract class KlabAPITestsuite {
 		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange())
 				&& context.getObservation("elevation").getDataRange().contains(Range.create(500, 2500));
 	}
-	
+
+	@Test
+	public void testAggregatedResults() throws Exception {
+
+		/*
+		 * pass a semantic type and a geometry + a quality to observe. The quality will
+		 * be available with the (obvious) name in the context
+		 */
+		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("geography:Elevation"));
+
+		/**
+		 * Retrieve the context and assert it's valid
+		 */
+		Context context = contextTask.get();
+
+		assert context != null;
+		assert context.getObservation("elevation") != null;
+
+		/*
+		 * assert that the value of the elevation is in the standard unit (m) and the
+		 * range is within the expected.
+		 */
+		assert Range.create(0, 3000).contains(context.getObservation("elevation").getDataRange())
+				&& context.getObservation("elevation").getDataRange().contains(Range.create(500, 2500));
+
+		Object aggregated = context.getObservation("elevation").getAggregatedValue();
+		Object scalar = context.getObservation("elevation").getScalarValue();
+
+		assert aggregated instanceof Number && ((Number) aggregated).doubleValue() > 0;
+		assert scalar == null;
+	}
+
 	@Test
 	public void testCategories() throws Exception {
 
@@ -95,7 +127,8 @@ public abstract class KlabAPITestsuite {
 		 * be available with the (obvious) name in the context
 		 */
 		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
-				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("landcover:LandCoverType").named("landcover"));
+				Geometry.builder().grid(ruaha, "1 km").years(2010).build(),
+				Observable.create("landcover:LandCoverType").named("landcover"));
 
 		/**
 		 * Retrieve the context and assert it's valid
@@ -106,7 +139,7 @@ public abstract class KlabAPITestsuite {
 		Observation landcover = context.getObservation("landcover");
 		assert landcover != null;
 	}
-	
+
 	@Test
 	public void testSpatialObjects() throws Exception {
 
@@ -118,21 +151,22 @@ public abstract class KlabAPITestsuite {
 		 */
 		Context context = contextTask.get();
 		Observation towns = context.submit(Observable.create("infrastructure:Town")).get();
-		
-		System.out.println(towns.export(Export.DATA, ExportFormat.GEOJSON_FEATURES));;
-		
+
+		System.out.println(towns.export(Export.DATA, ExportFormat.GEOJSON_FEATURES));
+		;
+
 		assert towns != null;
 	}
-	
+
 	@Test
 	public void testSpatialObjectsInCatalog() throws Exception {
 
 		Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
 				Geometry.builder().grid(ruaha, "1 km").years(2010).build(), Observable.create("infrastructure:Town"));
-		
+
 		assert contextTask.get().getObservation("town") != null;
 	}
-	
+
 	@Test
 	public void testDirectNamedObservation() throws Exception {
 
@@ -174,7 +208,7 @@ public abstract class KlabAPITestsuite {
 		 */
 		Estimate estimate = estimateTask.get();
 
-		assert estimate != null && ((EstimateImpl)estimate).getEstimateId() != null;
+		assert estimate != null && ((EstimateImpl) estimate).getEstimateId() != null;
 
 		if (estimate.getCost() >= 0) {
 

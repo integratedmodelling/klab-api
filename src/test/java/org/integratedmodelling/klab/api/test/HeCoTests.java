@@ -73,5 +73,8 @@ public class HeCoTests {
         assert colombia != null;
         Observation biodiversityIndicator = colombia.submit(Observable.create(indicators[0])).get();
         assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();
+        System.out.println("DATA RANGE: " + biodiversityIndicator.getDataRange());
+        System.out.println("AGGREGATED: " + biodiversityIndicator.getAggregatedValue());
+        System.out.println("SCALAR VAL: " + biodiversityIndicator.getScalarValue());
     }
 }
