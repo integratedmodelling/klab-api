@@ -22,10 +22,10 @@ import org.junit.Test;
  */
 public class HeCoTestsLocal {
 
-	static String[] indicators = { "im:Indicator value of ecology:Biodiversity",
+	static String[] indicators = { "im:Indicator es.nca:Condition of demography:Human demography:Community",
+			"im:Indicator es.nca:Condition of earth:Aquatic ecology:Ecosystem",
 			"im:Indicator value of ecology:Ecosystem for es:ClimateRegulation",
-			"im:Indicator es.nca:Condition of demography:SocialStructure",
-			"im:Indicator es.nca:Condition of earth:Aquatic ecology:Ecosystem" };
+			"im:Indicator value of ecology:Biodiversity" };
 
 	protected Klab klab;
 
@@ -46,14 +46,53 @@ public class HeCoTestsLocal {
 		}
 	}
 
-	@Test
-	public void biodiversityIndicator() throws Exception {
+	private void computeIndicator(String indicatorObservable) throws Exception {
 		Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
 		assert colombia != null;
-		Observation biodiversityIndicator = colombia.submit(Observable.create(indicators[0])).get();
-		assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();
-		assert biodiversityIndicator.getAggregatedValue() instanceof Number
-				&& ((Number) biodiversityIndicator.getAggregatedValue()).doubleValue() > 0;
-		assert biodiversityIndicator.getScalarValue() == null;
+		Observation indicator = colombia.submit(Observable.create(indicatorObservable)).get();
+		assert indicator != null && !indicator.isEmpty();
+		System.out.println(indicator + " = " + indicator.getAggregatedValue());
+		assert indicator.getAggregatedValue() instanceof Number
+				&& ((Number) indicator.getAggregatedValue()).doubleValue() > 0;
+		assert indicator.getScalarValue() == null;
+	}
+	
+	@Test
+	public void firstIndicatorSeparately() throws Exception {
+		computeIndicator(indicators[0]);
+	}
+
+	@Test
+	public void secondIndicatorSeparately() throws Exception {
+		computeIndicator(indicators[1]);
+	}
+	
+	@Test
+	public void thirdIndicatorSeparately() throws Exception {
+		computeIndicator(indicators[2]);
+	}
+	
+	@Test
+	public void fourthIndicatorSeparately() throws Exception {
+		computeIndicator(indicators[3]);
+	}
+
+	@Test
+	public void allIndicatorsSequentially() throws Exception {
+		Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
+		assert colombia != null;
+
+		int success = 0;
+		for (String indicator : indicators) {
+			Observation observedIndicator = colombia.submit(Observable.create(indicator)).get();
+			if (observedIndicator.isEmpty()) {
+				System.out.println("Observation of " + indicator + " failed");
+				continue;
+			}
+			success ++;
+			System.out.println(indicator + " = " + observedIndicator.getAggregatedValue());
+		}
+		
+		assert success == indicators.length;
 	}
 }

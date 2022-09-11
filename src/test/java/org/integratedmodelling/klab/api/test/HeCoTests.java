@@ -28,7 +28,7 @@ public class HeCoTests {
 
 	static String[] indicators = { "im:Indicator value of ecology:Biodiversity",
 			"im:Indicator value of ecology:Ecosystem for es:ClimateRegulation",
-			"im:Indicator es.nca:Condition of demography:SocialStructure",
+			"im:Indicator es.nca:Condition of demography:Human demography:Community",
 			"im:Indicator es.nca:Condition of earth:Aquatic ecology:Ecosystem" };
 
 	protected Klab klab;
@@ -72,10 +72,18 @@ public class HeCoTests {
 	public void biodiversityIndicator() throws Exception {
 		Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
 		assert colombia != null;
-		Observation biodiversityIndicator = colombia.submit(Observable.create(indicators[0])).get();
-		assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();
-		assert biodiversityIndicator.getAggregatedValue() instanceof Number
-				&& ((Number) biodiversityIndicator.getAggregatedValue()).doubleValue() > 0;
-		assert biodiversityIndicator.getScalarValue() == null;
+
+		for (String indicator : indicators) {
+			Observation biodiversityIndicator = colombia.submit(Observable.create(indicator)).get();
+
+			assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();
+
+			System.out.println(indicator + " = " + biodiversityIndicator.getAggregatedValue());
+
+			assert biodiversityIndicator.getAggregatedValue() instanceof Number
+					&& ((Number) biodiversityIndicator.getAggregatedValue()).doubleValue() > 0;
+			assert biodiversityIndicator.getScalarValue() == null;
+		}
+
 	}
 }
