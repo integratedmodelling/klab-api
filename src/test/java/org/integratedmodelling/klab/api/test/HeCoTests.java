@@ -76,7 +76,8 @@ public class HeCoTests {
 
         Context colombia = klab.submit(Observable.create("earth:Region"), centralColombia).get();
 
-//        Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
+        // This below is the entire Colombia, taking a minute or so to compute
+        // Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
         assert colombia != null;
 
         for (String indicator : indicators) {
