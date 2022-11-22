@@ -25,10 +25,10 @@ import org.junit.Test;
  */
 public class HeCoTests {
 
-    static String[] indicators = {"im:Indicator value of ecology:Biodiversity",
-            "im:Indicator value of ecology:Ecosystem for es:ClimateRegulation",
-            "im:Indicator es.nca:Condition of demography:SocialStructure",
-            "im:Indicator es.nca:Condition of earth:Aquatic ecology:Ecosystem"};
+    static String[] indicators = {"im:Indicator (value of ecology:Biodiversity)",
+            "im:Indicator (value of ecology:Ecosystem for es:ClimateRegulation)",
+            "im:Indicator (es.nca:Condition of earth:Aquatic ecology:Ecosystem)",
+            "im:Indicator (es.nca:Condition of demography:Human demography:Community)"};
 
     protected Klab klab;
     protected String username;
