@@ -16,6 +16,7 @@ import org.integratedmodelling.klab.rest.PingResponse;
 import org.integratedmodelling.klab.rest.TicketResponse;
 import org.integratedmodelling.klab.rest.TicketResponse.Ticket;
 
+import kong.unirest.CookieSpecs;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -38,6 +39,9 @@ public class Engine implements API.PUBLIC {
 		while (this.url.endsWith("/")) {
 			this.url = this.url.substring(0, this.url.length() - 1);
 		}
+		// added to avoid invalid cookie header warning 
+		// https://stackoverflow.com/a/40697322/4495284
+		Unirest.config().cookieSpec(CookieSpecs.STANDARD);
 	}
 
 	private <T> T post(String endpoint, Object request, Class<? extends T> responseType, Object... pathVariables) {
