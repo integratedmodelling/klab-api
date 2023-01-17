@@ -49,36 +49,36 @@ public class HeCoTestsLocal {
         }
     }
 
-    private void computeIndicator(String indicatorObservable) throws Exception {
-        // Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
-        Context colombia = klab.submit(Observable.create("earth:Region"), centralColombia).get();
-        assert colombia != null;
-        Observation indicator = colombia.submit(Observable.create(indicatorObservable)).get();
-        assert indicator != null && !indicator.isEmpty();
-        System.out.println(indicator + " = " + indicator.getAggregatedValue());
-        assert indicator.getAggregatedValue() instanceof Number && ((Number) indicator.getAggregatedValue()).doubleValue() > 0;
-        assert indicator.getScalarValue() == null;
-    }
+//    private void computeIndicator(String indicatorObservable) throws Exception {
+//        // Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
+//        Context colombia = klab.submit(Observable.create("earth:Region"), centralColombia).get();
+//        assert colombia != null;
+//        Observation indicator = colombia.submit(Observable.create(indicatorObservable)).get();
+//        assert indicator != null && !indicator.isEmpty();
+//        System.out.println(indicator + " = " + indicator.getAggregatedValue());
+//        assert indicator.getAggregatedValue() instanceof Number && ((Number) indicator.getAggregatedValue()).doubleValue() > 0;
+//        assert indicator.getScalarValue() == null;
+//    }
 
-    @Test
-    public void firstIndicatorSeparately() throws Exception {
-        computeIndicator(indicators[0]);
-    }
-
-    @Test
-    public void secondIndicatorSeparately() throws Exception {
-        computeIndicator(indicators[1]);
-    }
-
-    @Test
-    public void thirdIndicatorSeparately() throws Exception {
-        computeIndicator(indicators[2]);
-    }
-
-    @Test
-    public void fourthIndicatorSeparately() throws Exception {
-        computeIndicator(indicators[3]);
-    }
+//    @Test
+//    public void firstIndicatorSeparately() throws Exception {
+//        computeIndicator(indicators[0]);
+//    }
+//
+//    @Test
+//    public void secondIndicatorSeparately() throws Exception {
+//        computeIndicator(indicators[1]);
+//    }
+//
+//    @Test
+//    public void thirdIndicatorSeparately() throws Exception {
+//        computeIndicator(indicators[2]);
+//    }
+//
+//    @Test
+//    public void fourthIndicatorSeparately() throws Exception {
+//        computeIndicator(indicators[3]);
+//    }
 
     @Test
     public void allIndicatorsSequentially() throws Exception {
