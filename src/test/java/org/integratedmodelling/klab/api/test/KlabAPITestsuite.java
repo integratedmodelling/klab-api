@@ -29,7 +29,7 @@ public abstract class KlabAPITestsuite {
     protected Klab klab;
 
     /**
-     * String with three template variables; I assume a span of one year is OK and everything is in
+     * String with template variables; I assume a span of one year is OK and everything is in
      * lat/lon projection (EPSG:4326)
      */
     private String geometryEncoding = "τ0(1){ttype=LOGICAL,period=[{TIME_PERIOD}],tscope=1.0,tunit=YEAR}S2({GRID_RESOLUTION_XY}){bbox=[{BOUNDING_BOX}],shape={WKB_SHAPE},proj=EPSG:4326}";
