@@ -137,7 +137,10 @@ public class TicketHandler<T> implements Future<T> {
 				}
 				return (T) ret;
 			}
-		}
+		} else {
+		    // empty result
+            return (T) (new ObservationImpl(null, engine));
+        }
 		return null;
 	}
 
