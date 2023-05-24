@@ -125,9 +125,9 @@ public class Engine implements API.PUBLIC {
 		}
 		if (result.containsKey("authorization")) {
             // TODO check if we need to remember the user-bound authorization token
-            this.authentication += "|" + result.get("authorization").toString();
+            this.authentication = result.get("authorization").toString();
         } else {
-            this.acceptHeader = "";
+            this.authentication = "";
         }
 		return new StringBuffer().append(this.session).append("|").append(this.authentication).toString();
 	}
