@@ -29,10 +29,11 @@ import kong.unirest.Unirest;
  */
 public class Engine implements API.PUBLIC {
 
-	private String token;
 	private String url;
 	// change temporarily using 'with'
 	private String acceptHeader = null;
+	private String session;
+	private String authentication;
 
 	public Engine(String engineUrl) {
 		this.url = engineUrl;
@@ -57,9 +58,10 @@ public class Engine implements API.PUBLIC {
 				endpoint = endpoint.replace(pathVariables[i].toString(), pathVariables[++i].toString());
 			}
 		}
-
 		return (T) Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType)
-				.header("Authorization", token).header("User-Agent", getUserAgent()).body(request)
+				.header("Authorization", this.session)
+				.header("Authentication", this.authentication)
+				.header("User-Agent", getUserAgent()).body(request)
 				.asObject(responseType).getBody();
 	}
 
@@ -74,7 +76,9 @@ public class Engine implements API.PUBLIC {
 		// TODO handle different responses if the Accept header has been modified.
 		// Should pass a String class for text or an InputStream class for streamed
 		// data.
-		return (T) Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("Authorization", token)
+		return (T) Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType)
+		        .header("Authorization", this.session)
+                .header("Authentication", this.authentication)
 				.header("User-Agent", getUserAgent()).asObject(cls).getBody();
 	}
 
@@ -115,9 +119,17 @@ public class Engine implements API.PUBLIC {
 		Map<?, ?> result = post(AUTHENTICATE_USER, request, Map.class);
 		if (result.containsKey("session")) {
 			// TODO check if we need to remember the user-bound authorization token
-			this.token = result.get("session").toString();
+			this.session = result.get("session").toString();
+		} else {
+		    this.session = "";
 		}
-		return this.token;
+		if (result.containsKey("authorization")) {
+            // TODO check if we need to remember the user-bound authorization token
+            this.authentication += "|" + result.get("authorization").toString();
+        } else {
+            this.acceptHeader = "";
+        }
+		return new StringBuffer().append(this.session).append("|").append(this.authentication).toString();
 	}
 
 	/**
@@ -127,7 +139,10 @@ public class Engine implements API.PUBLIC {
 	 * @return
 	 */
 	public boolean deauthenticate() {
-		return Unirest.post(makeUrl(DEAUTHENTICATE_USER)).header("Authorization", token).asEmpty().isSuccess();
+		return Unirest.post(makeUrl(DEAUTHENTICATE_USER))
+		        .header("Authorization", this.session)
+                .header("Authentication", this.authentication)
+		        .asEmpty().isSuccess();
 	}
 
 	/**
@@ -142,17 +157,17 @@ public class Engine implements API.PUBLIC {
 			if (request.isSuccess()) {
 				PingResponse response = request.getBody();
 				if (response != null && response.getLocalSessionId() != null) {
-					this.token = response.getLocalSessionId();
+					this.session = response.getLocalSessionId();
 				}
 			}
 		} catch (Throwable t) {
 			// no connection: just return null, isOnline() will return false
 		}
-		return this.token;
+		return this.session;
 	}
 
 	public boolean isOnline() {
-		return this.token != null;
+		return this.session != null;
 	}
 
 	/**
@@ -211,16 +226,17 @@ public class Engine implements API.PUBLIC {
 				EXPORT_DATA.replace(P_EXPORT, target.name().toLowerCase()).replace(P_OBSERVATION, observationId),
 				parameters);
 		try {
-
-			Unirest.get(url).accept(format.getMediaType()).header("Authorization", token)
-					.header("User-Agent", getUserAgent()).thenConsume(response -> {
-						try {
-							response.getContent().transferTo(output);
-						} catch (IOException e) {
-							// uncheck
-							throw new KlabIOException(e);
-						}
-					});
+			Unirest.get(url).accept(format.getMediaType())
+			    .header("Authorization", this.session)
+			    .header("Authentication", this.authentication)
+			    .header("User-Agent", getUserAgent()).thenConsume(response -> {
+    				try {
+    					response.getContent().transferTo(output);
+    				} catch (IOException e) {
+    					// uncheck
+    					throw new KlabIOException(e);
+    				}
+    			});
 
 			return true;
 
@@ -234,4 +250,5 @@ public class Engine implements API.PUBLIC {
 	private String getUserAgent() {
 		return "k.LAB/" + Version.CURRENT + " (" + USER_AGENT_PLATFORM + ")";
 	}
+	
 }
