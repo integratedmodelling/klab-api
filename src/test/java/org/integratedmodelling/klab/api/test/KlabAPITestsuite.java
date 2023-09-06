@@ -2,6 +2,8 @@ package org.integratedmodelling.klab.api.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Future;
 
 import org.integratedmodelling.klab.api.Context;
@@ -62,8 +64,9 @@ public abstract class KlabAPITestsuite {
 
         String geometrySpecs = geometryEncoding.replace("{BOUNDING_BOX}", boundingBox).replace("{TIME_PERIOD}", timePeriod)
                 .replace("{GRID_RESOLUTION_XY}", gridResolutionXY).replace("{WKB_SHAPE}", wkbShape);
+        Geometry geom = Geometry.create(geometrySpecs);
         Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
-                Geometry.create(geometrySpecs));
+                geom);
         Context context = contextTask.get();
         assert context != null;
         
@@ -168,19 +171,45 @@ public abstract class KlabAPITestsuite {
 
     @Test
     public void testSpatialObjects() throws Exception {
-
+        
         Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
                 Geometry.builder().grid(ruaha, "1 km").years(2010).build());
-
+        
         /**
          * Retrieve the context and assert it's valid
          */
         Context context = contextTask.get();
         Observation towns = context.submit(Observable.create("infrastructure:Town")).get();
-
+        
         System.out.println(towns.export(Export.DATA, ExportFormat.GEOJSON_FEATURES));;
-
+        
         assert towns != null;
+    }
+    
+    @Test
+    public void testSpatialRasterObjects() throws Exception {
+
+        Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
+                Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+
+        Context context = contextTask.get();
+        Observation elevation = context.submit(Observable.create("geography:Elevation")).get();
+        
+        assert Range.create(0, 3000).contains(elevation.getDataRange())
+        && elevation.getDataRange().contains(Range.create(500, 2500));
+
+        // export to zip with raster and qgis style
+        Path file = Files.createTempFile("klab_test_raster", ".zip");
+        elevation.export(Export.DATA, ExportFormat.GEOTIFF_RASTER, file.toFile());
+        assert file.toFile().exists();
+        assert Files.readAllBytes(file).length > 0;
+
+        // export to tiff via direct stream
+        file = Files.createTempFile("klab_test_raster_stream", ".tiff");
+        elevation.export(Export.DATA, ExportFormat.BYTESTREAM, file.toFile());
+        assert file.toFile().exists();
+        assert Files.readAllBytes(file).length > 0;
+
     }
 
     @Test
@@ -252,12 +281,14 @@ public abstract class KlabAPITestsuite {
     @Test
     public void testContextualObservation() throws Exception {
 
-        Context context = klab
-                .submit(Observable.create("earth:Region"), Geometry.builder().grid(ruaha, "1 km").years(2010).build()).get();
+        Future<Context> submit = klab
+                .submit(Observable.create("earth:Region"), Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+        Context context = submit.get();
 
         assert context != null;
 
-        Observation elevation = context.submit(new Observable("geography:Elevation")).get();
+        Future<Observation> submit2 = context.submit(new Observable("geography:Elevation"));
+        Observation elevation = submit2.get();
 
         assert elevation != null;
         assert elevation.getDataRange().contains(Range.create(500, 2500));
