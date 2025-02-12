@@ -17,7 +17,9 @@ import org.integratedmodelling.klab.rest.TicketResponse;
 import org.integratedmodelling.klab.rest.TicketResponse.Ticket;
 
 import kong.unirest.CookieSpecs;
+import kong.unirest.GetRequest;
 import kong.unirest.HttpResponse;
+import kong.unirest.RequestBodyEntity;
 import kong.unirest.Unirest;
 
 /**
@@ -58,11 +60,17 @@ public class Engine implements API.PUBLIC {
                 endpoint = endpoint.replace(pathVariables[i].toString(), pathVariables[++i].toString());
             }
         }
-        return (T) Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType)
-                .header("Authorization", this.session).header("Authentication", this.authentication)
-                .header("User-Agent", getUserAgent()).body(request).asObject(responseType).getBody();
+        RequestBodyEntity requestBody = Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType).header("User-Agent", getUserAgent()).body(request);
+        if (this.session != null) {
+            requestBody.header("klab-authorization", this.session);
+        }
+        if (this.authentication != null) {
+            requestBody.header("Authentication", this.session);
+        }
+        
+        return (T) requestBody.asObject(responseType).getBody();
     }
-
+    
     private <T> T get(String endpoint, Class< ? extends T> cls, Object... parameters) {
 
         String mediaType = "application/json";
@@ -70,12 +78,18 @@ public class Engine implements API.PUBLIC {
             mediaType = acceptHeader;
             this.acceptHeader = null;
         }
-
+        GetRequest requestBody = Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("User-Agent", getUserAgent());
+        if (this.session != null) {
+            requestBody.header("klab-authorization", this.session);
+        }
+        if (this.authentication != null) {
+            requestBody.header("Authentication", this.session);
+        }
+        
         // TODO handle different responses if the Accept header has been modified.
         // Should pass a String class for text or an InputStream class for streamed
         // data.
-        return (T) Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("Authorization", this.session)
-                .header("Authentication", this.authentication).header("User-Agent", getUserAgent()).asObject(cls).getBody();
+        return (T) requestBody.asObject(cls).getBody();
     }
 
     private String makeUrl(String endpoint, Object... parameters) {
@@ -136,7 +150,7 @@ public class Engine implements API.PUBLIC {
      * @return
      */
     public boolean deauthenticate() {
-        return Unirest.post(makeUrl(DEAUTHENTICATE_USER)).header("Authorization", this.session)
+        return Unirest.post(makeUrl(DEAUTHENTICATE_USER)).header("klab-authorization", this.session)
                 .header("Authentication", this.authentication).asEmpty().isSuccess();
     }
 
@@ -220,7 +234,7 @@ public class Engine implements API.PUBLIC {
         String url = makeUrl(EXPORT_DATA.replace(P_EXPORT, target.name().toLowerCase()).replace(P_OBSERVATION, observationId),
                 parameters);
         try {
-            Unirest.get(url).accept(format.getMediaType()).header("Authorization", this.session)
+            Unirest.get(url).accept(format.getMediaType()).header("klab-authorization", this.session)
                     .header("Authentication", this.authentication).header("User-Agent", getUserAgent()).thenConsume(response -> {
                         try {
                             response.getContent().transferTo(output);
