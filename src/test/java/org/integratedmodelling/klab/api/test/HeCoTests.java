@@ -80,7 +80,7 @@ public class HeCoTests {
         // Context colombia = klab.submit("aries.heco.locations.colombia_continental").get();
         assert colombia != null;
 
-        for (String indicator : indicators) {
+        for(String indicator : indicators) {
             Observation biodiversityIndicator = colombia.submit(Observable.create(indicator)).get();
 
             assert biodiversityIndicator != null && !biodiversityIndicator.isEmpty();

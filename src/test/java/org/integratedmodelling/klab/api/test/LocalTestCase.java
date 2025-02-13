@@ -4,9 +4,9 @@ import org.integratedmodelling.klab.api.Klab;
 
 public class LocalTestCase extends KlabAPITestsuite {
 
-	@Override
-	protected Klab createClient() {
-		return Klab.create();
-	}
+    @Override
+    protected Klab createClient() {
+        return Klab.create();
+    }
 
 }

@@ -63,16 +63,16 @@ public class Klab implements Closeable {
         CSV_TABLE("text/csv", Export.VIEW), //
         PDF_DOCUMENT("application/pdf", Export.REPORT), //
         EXCEL_TABLE("application/vnd.ms-excel", Export.VIEW), //
-        WORD_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document", Export.REPORT),
-        BYTESTREAM("application/octet-stream", Export.DATA);
+        WORD_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                Export.REPORT), BYTESTREAM("application/octet-stream", Export.DATA);
 
         String mediaType;
         Set<Export> allowedExports = EnumSet.noneOf(Export.class);
 
-        ExportFormat( String mediaType, Export... allowed ) {
+        ExportFormat(String mediaType, Export... allowed) {
             this.mediaType = mediaType;
             if (allowed != null) {
-                for( Export export : allowed ) {
+                for(Export export : allowed) {
                     allowedExports.add(export);
                 }
             }
@@ -82,7 +82,7 @@ public class Klab implements Closeable {
             return mediaType;
         }
 
-        public boolean isExportAllowed( Export export ) {
+        public boolean isExportAllowed(Export export) {
             return this.allowedExports.contains(export);
         }
 
@@ -126,12 +126,12 @@ public class Klab implements Closeable {
 
     public static long POLLING_INTERVAL_MS = 2000l;
 
-    private Klab( String engineUrl ) {
+    private Klab(String engineUrl) {
         this.engine = new Engine(engineUrl);
         this.session = this.engine.authenticate();
     }
 
-    private Klab( String engineUrl, String username, String password ) {
+    private Klab(String engineUrl, String username, String password) {
         this.engine = new Engine(engineUrl);
         this.session = this.engine.authenticate(username, password);
     }
@@ -145,7 +145,7 @@ public class Klab implements Closeable {
      * @param password
      * @return
      */
-    public static Klab create( String remoteEngineUrl, String username, String password ) {
+    public static Klab create(String remoteEngineUrl, String username, String password) {
         return new Klab(remoteEngineUrl, username, password);
     }
 
@@ -158,7 +158,7 @@ public class Klab implements Closeable {
      * @param localEngineUrl
      * @return
      */
-    public static Klab create( String localEngineUrl ) {
+    public static Klab create(String localEngineUrl) {
         return new Klab(localEngineUrl);
     }
 
@@ -195,13 +195,13 @@ public class Klab implements Closeable {
      * 
      * @return an estimate future; call get() to wait until the estimate is ready and retrieve it.
      */
-    public Future<Estimate> estimate( Observable contextType, IGeometry geometry, Object... arguments ) {
+    public Future<Estimate> estimate(Observable contextType, IGeometry geometry, Object... arguments) {
 
         ContextRequest request = new ContextRequest();
         request.setContextType(contextType.toString());
         request.setGeometry(geometry.encode());
         request.setEstimate(true);
-        for( Object o : arguments ) {
+        for(Object o : arguments) {
             if (o instanceof Observable) {
                 request.getObservables().add(((Observable) o).toString());
             } else if (o instanceof String) {
@@ -219,12 +219,12 @@ public class Klab implements Closeable {
         throw new KlabIllegalArgumentException("Cannot build estimate request from arguments: " + Arrays.toString(arguments));
     }
 
-    public Future<Estimate> estimate( String urn, Object... arguments ) {
+    public Future<Estimate> estimate(String urn, Object... arguments) {
         ContextRequest request = new ContextRequest();
         request.setUrn(urn);
         request.setEstimate(true);
         if (arguments != null) {
-            for( Object o : arguments ) {
+            for(Object o : arguments) {
                 if (o instanceof Observable) {
                     request.getObservables().add(((Observable) o).toString());
                 } else if (o instanceof String) {
@@ -249,7 +249,7 @@ public class Klab implements Closeable {
      * @param estimate
      * @return
      */
-    public Future<Context> submit( Estimate estimate ) {
+    public Future<Context> submit(Estimate estimate) {
 
         if (((EstimateImpl) estimate).getTicketType() != Type.ContextEstimate) {
             throw new KlabIllegalArgumentException("the estimate passed is not a context estimate");
@@ -274,13 +274,13 @@ public class Klab implements Closeable {
      *        interpreted as scenario URNs.
      * @return
      */
-    public Future<Context> submit( Observable contextType, IGeometry geometry, Object... arguments ) {
+    public Future<Context> submit(Observable contextType, IGeometry geometry, Object... arguments) {
 
         ContextRequest request = new ContextRequest();
         request.setContextType(contextType.toString());
         request.setGeometry(geometry.encode());
         request.setEstimate(false);
-        for( Object o : arguments ) {
+        for(Object o : arguments) {
             if (o instanceof Observable) {
                 request.getObservables().add(((Observable) o).toString());
             } else if (o instanceof String) {
@@ -298,12 +298,12 @@ public class Klab implements Closeable {
         throw new KlabIllegalArgumentException("Cannot build estimate request from arguments: " + Arrays.toString(arguments));
     }
 
-    public Future<Context> submit( String urn, Object... arguments ) {
+    public Future<Context> submit(String urn, Object... arguments) {
         ContextRequest request = new ContextRequest();
         request.setUrn(urn);
         request.setEstimate(false);
         if (arguments != null) {
-            for( Object o : arguments ) {
+            for(Object o : arguments) {
                 if (o instanceof Observable) {
                     request.getObservables().add(((Observable) o).toString());
                 } else if (o instanceof String) {
