@@ -87,7 +87,7 @@ public class HeCoTestsLocal {
         assert colombia != null;
 
         int success = 0;
-        for (String indicator : indicators) {
+        for(String indicator : indicators) {
             Observation observedIndicator = colombia.submit(Observable.create(indicator)).get();
             if (observedIndicator.isEmpty()) {
                 System.out.println("Observation of " + indicator + " failed");

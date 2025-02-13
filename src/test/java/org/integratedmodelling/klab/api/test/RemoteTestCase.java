@@ -21,29 +21,29 @@ import org.junit.Before;
  */
 public class RemoteTestCase extends KlabAPITestsuite {
 
-	protected String username;
-	protected String password;
-	protected String testEngine;
+    protected String username;
+    protected String password;
+    protected String testEngine;
 
-	@Before
-	public void readCredentials() {
-		Properties properties = new Properties();
-		try (InputStream input = new FileInputStream(new File(System.getProperty("user.home") + File.separator + ".klab"
-				+ File.separator + "testcredentials.properties"))) {
-			properties.load(input);
-		} catch (IOException e) {
-			throw new KlabResourceNotFoundException(
-					"can't open ~/.klab/testcredentials.properties with username and passwords for test engine");
-		}
-		this.username = properties.getProperty("username", "username");
-		this.password = properties.getProperty("password", "password");
-		this.testEngine = properties.getProperty("engine", "https://developers.integratedmodelling.org/modeler");
-	}
+    @Before
+    public void readCredentials() {
+        Properties properties = new Properties();
+        try (InputStream input = new FileInputStream(new File(
+                System.getProperty("user.home") + File.separator + ".klab" + File.separator + "testcredentials.properties"))) {
+            properties.load(input);
+        } catch (IOException e) {
+            throw new KlabResourceNotFoundException(
+                    "can't open ~/.klab/testcredentials.properties with username and passwords for test engine");
+        }
+        this.username = properties.getProperty("username", "username");
+        this.password = properties.getProperty("password", "password");
+        this.testEngine = properties.getProperty("engine", "https://developers.integratedmodelling.org/modeler");
+    }
 
-	@Override
-	protected Klab createClient() {
-		readCredentials();
-		return Klab.create(testEngine, username, password);
-	}
+    @Override
+    protected Klab createClient() {
+        readCredentials();
+        return Klab.create(testEngine, username, password);
+    }
 
 }

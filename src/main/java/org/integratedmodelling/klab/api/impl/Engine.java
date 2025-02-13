@@ -60,17 +60,18 @@ public class Engine implements API.PUBLIC {
                 endpoint = endpoint.replace(pathVariables[i].toString(), pathVariables[++i].toString());
             }
         }
-        RequestBodyEntity requestBody = Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType).header("User-Agent", getUserAgent()).body(request);
+        RequestBodyEntity requestBody = Unirest.post(makeUrl(endpoint)).contentType("application/json").accept(mediaType)
+                .header("User-Agent", getUserAgent()).body(request);
         if (this.session != null) {
             requestBody.header("klab-authorization", this.session);
         }
         if (this.authentication != null) {
             requestBody.header("Authentication", this.session);
         }
-        
+
         return (T) requestBody.asObject(responseType).getBody();
     }
-    
+
     private <T> T get(String endpoint, Class< ? extends T> cls, Object... parameters) {
 
         String mediaType = "application/json";
@@ -78,14 +79,15 @@ public class Engine implements API.PUBLIC {
             mediaType = acceptHeader;
             this.acceptHeader = null;
         }
-        GetRequest requestBody = Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("User-Agent", getUserAgent());
+        GetRequest requestBody = Unirest.get(makeUrl(endpoint, parameters)).accept(mediaType).header("User-Agent",
+                getUserAgent());
         if (this.session != null) {
             requestBody.header("klab-authorization", this.session);
         }
         if (this.authentication != null) {
             requestBody.header("Authentication", this.session);
         }
-        
+
         // TODO handle different responses if the Accept header has been modified.
         // Should pass a String class for text or an InputStream class for streamed
         // data.

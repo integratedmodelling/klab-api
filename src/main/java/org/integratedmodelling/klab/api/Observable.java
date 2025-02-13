@@ -11,72 +11,70 @@ import org.integratedmodelling.klab.utils.Range;
  * @author Ferd
  *
  */
-public class Observable  {
+public class Observable {
 
-	private String name = null;
-	private String unit = null;
-	private Object value = null;
-	private Range range = null;
-	private String semantics;
-	
-	public Observable(String s) {
-		this.semantics = s;
-	}
+    private String name = null;
+    private String unit = null;
+    private Object value = null;
+    private Range range = null;
+    private String semantics;
 
-	public static Observable create(String s) {
-		return new Observable(s);
-	}
+    public Observable(String s) {
+        this.semantics = s;
+    }
 
-	public Observable named(String name) {
-		if (this.name != null) {
-			throw new KlabIllegalStateException("cannot add modifiers more than once");
-		}
-		this.name = name;
-		return this;
-	}
+    public static Observable create(String s) {
+        return new Observable(s);
+    }
 
-	public Observable range(Range range) {
-		if (this.unit != null || this.range != null) {
-			throw new KlabIllegalStateException("cannot add modifiers more than once");
-		}
-		this.range = range;
-		return this;
-	}
-	
-	public Observable value(Object value) {
-		if (this.value != null) {
-			throw new KlabIllegalStateException("cannot add modifiers more than once");
-		}
-		this.value = value;
-		return this;
-	}
-	
-	/**
-	 * Pass a valid unit or currency. No validation is done.
-	 * 
-	 * @param unit
-	 * @return this observable
-	 */
-	public Observable in(String unit) {
-		if (this.unit != null || this.range != null) {
-			throw new KlabIllegalStateException("cannot add modifiers more than once");
-		}
-		this.unit = unit;
-		return this;
-	}
+    public Observable named(String name) {
+        if (this.name != null) {
+            throw new KlabIllegalStateException("cannot add modifiers more than once");
+        }
+        this.name = name;
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return(value == null ? "" : (value + " as ")) 
-			+ semantics 
-			+ (range == null ? "" : (range.getLowerBound() + " to " + range.getUpperBound())) 
-			+ (unit == null ? "" : (" in " + unit))
-			+ (name == null ? "" : (" named " + name));
-			
-	}
+    public Observable range(Range range) {
+        if (this.unit != null || this.range != null) {
+            throw new KlabIllegalStateException("cannot add modifiers more than once");
+        }
+        this.range = range;
+        return this;
+    }
+
+    public Observable value(Object value) {
+        if (this.value != null) {
+            throw new KlabIllegalStateException("cannot add modifiers more than once");
+        }
+        this.value = value;
+        return this;
+    }
+
+    /**
+     * Pass a valid unit or currency. No validation is done.
+     * 
+     * @param unit
+     * @return this observable
+     */
+    public Observable in(String unit) {
+        if (this.unit != null || this.range != null) {
+            throw new KlabIllegalStateException("cannot add modifiers more than once");
+        }
+        this.unit = unit;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return (value == null ? "" : (value + " as ")) + semantics
+                + (range == null ? "" : (range.getLowerBound() + " to " + range.getUpperBound()))
+                + (unit == null ? "" : (" in " + unit)) + (name == null ? "" : (" named " + name));
+
+    }
 
     public String getName() {
         return this.name;
     }
-	
+
 }

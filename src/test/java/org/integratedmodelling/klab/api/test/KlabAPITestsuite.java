@@ -65,11 +65,10 @@ public abstract class KlabAPITestsuite {
         String geometrySpecs = geometryEncoding.replace("{BOUNDING_BOX}", boundingBox).replace("{TIME_PERIOD}", timePeriod)
                 .replace("{GRID_RESOLUTION_XY}", gridResolutionXY).replace("{WKB_SHAPE}", wkbShape);
         Geometry geom = Geometry.create(geometrySpecs);
-        Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
-                geom);
+        Future<Context> contextTask = klab.submit(Observable.create("earth:Region"), geom);
         Context context = contextTask.get();
         assert context != null;
-        
+
     }
 
     @Test
@@ -171,21 +170,21 @@ public abstract class KlabAPITestsuite {
 
     @Test
     public void testSpatialObjects() throws Exception {
-        
+
         Future<Context> contextTask = klab.submit(Observable.create("earth:Region"),
                 Geometry.builder().grid(ruaha, "1 km").years(2010).build());
-        
+
         /**
          * Retrieve the context and assert it's valid
          */
         Context context = contextTask.get();
         Observation towns = context.submit(Observable.create("infrastructure:Town")).get();
-        
+
         System.out.println(towns.export(Export.DATA, ExportFormat.GEOJSON_FEATURES));;
-        
+
         assert towns != null;
     }
-    
+
     @Test
     public void testSpatialRasterObjects() throws Exception {
 
@@ -194,9 +193,9 @@ public abstract class KlabAPITestsuite {
 
         Context context = contextTask.get();
         Observation elevation = context.submit(Observable.create("geography:Elevation")).get();
-        
+
         assert Range.create(0, 3000).contains(elevation.getDataRange())
-        && elevation.getDataRange().contains(Range.create(500, 2500));
+                && elevation.getDataRange().contains(Range.create(500, 2500));
 
         // export to zip with raster and qgis style
         Path file = Files.createTempFile("klab_test_raster", ".zip");
@@ -281,8 +280,8 @@ public abstract class KlabAPITestsuite {
     @Test
     public void testContextualObservation() throws Exception {
 
-        Future<Context> submit = klab
-                .submit(Observable.create("earth:Region"), Geometry.builder().grid(ruaha, "1 km").years(2010).build());
+        Future<Context> submit = klab.submit(Observable.create("earth:Region"),
+                Geometry.builder().grid(ruaha, "1 km").years(2010).build());
         Context context = submit.get();
 
         assert context != null;
